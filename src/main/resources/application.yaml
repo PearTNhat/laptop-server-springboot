@@ -1,0 +1,8 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+spring:
+  data:
+    mongodb:
+      uri: mongodb+srv://myDataBase:tTjdKU89oiusfHUm@cluster0.1m9hxst.mongodb.net/ecomerce-digital?retryWrites=true&w=majority&appName=Cluster0
