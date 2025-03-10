@@ -19,11 +19,4 @@ public class LaptopStoreServerApplication {
         SpringApplication.run(LaptopStoreServerApplication.class, args);
     }
 
-//    @Bean
-//    ApplicationRunner applicationRunner(ItemRepository itemRepository) {
-//        return args -> {
-//            System.out.println("______________Zo");
-//            itemRepository.save(Item.builder().name("kaka").build());
-//        };
-//    }
 }

@@ -5,4 +5,8 @@ server:
 spring:
   data:
     mongodb:
-      uri: mongodb+srv://myDataBase:tTjdKU89oiusfHUm@cluster0.1m9hxst.mongodb.net/ecomerce-digital?retryWrites=true&w=majority&appName=Cluster0
+      uri: ${MONGO_URI}
+jwt:
+  signerKey: ${SIGNER_KEY}
+  valid-duration: 200000 #seconds
+  refreshable-duration: 1200000 #seconds

@@ -6,6 +6,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,22 +24,22 @@ public class Comment {
 
     private Integer rating;
 
-    @DBRef
+    @DocumentReference(collection = "users")
     private User user;
 
-    @DBRef
+    @DocumentReference(collection = "product")
     private Product product;
 
-    @DBRef
+    @DocumentReference(collection = "comments")
     private Comment parentId;
 
-    @DBRef
+    @DocumentReference(collection = "users")
     private User replyOnUser;
 
-    @DBRef
+    @DocumentReference(collection = "users")
     private List<User> likes;
 
-    @DBRef
+    @DocumentReference(collection = "users")
     private List<User> dislikes;
 
     private String content;
