@@ -13,6 +13,6 @@ import org.springframework.data.mongodb.core.mapping.DocumentReference;
 @NoArgsConstructor
 @AllArgsConstructor
 public class WishListItem {
-    @DocumentReference(collection = "products")
+    @DocumentReference(collection = "products",lazy = true)
     private Product product;
 }

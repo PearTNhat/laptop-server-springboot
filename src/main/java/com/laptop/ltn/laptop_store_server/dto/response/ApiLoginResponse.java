@@ -11,10 +11,10 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 // Những filed nào null thì nó k trả về
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ApiResponse<T> {
+public class ApiLoginResponse<T> {
     @Builder.Default
     Boolean success =true;
+    String accessToken;
+    T userData;
     String message;
-    String counts;
-    T data;
 }

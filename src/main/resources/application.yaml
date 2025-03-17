@@ -6,7 +6,23 @@ spring:
   data:
     mongodb:
       uri: ${MONGO_URI}
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${SMTP_USERNAME}
+    password: ${SMTP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 jwt:
   signerKey: ${SIGNER_KEY}
   valid-duration: 200000 #seconds
   refreshable-duration: 1200000 #seconds
+cloudinary:
+  cloudName: ${CLOUDINARY_NAME}
+  apiKey: ${CLOUDINARY_API_KEY}
+  apiSecret: ${CLOUDINARY_API_SECRET}
+

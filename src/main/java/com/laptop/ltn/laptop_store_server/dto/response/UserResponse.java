@@ -7,6 +7,7 @@ import com.laptop.ltn.laptop_store_server.entity.WishListItem;
 import lombok.*;
 import org.bson.types.ObjectId;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -17,7 +18,7 @@ import java.util.List;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL) // Bỏ qua giá trị null khi serialize
 public class UserResponse {
-    private ObjectId id;
+    private String _id;
 
     private String firstName;
     private String lastName;
@@ -35,6 +36,6 @@ public class UserResponse {
     private String role ;
     private boolean isBlocked ;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Instant createdAt;
+    private Instant updatedAt;
 }

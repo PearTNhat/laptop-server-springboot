@@ -20,7 +20,7 @@ import java.util.List;
 public class Comment {
 
     @Id
-    private ObjectId id;
+    private String _id;
 
     private Integer rating;
 

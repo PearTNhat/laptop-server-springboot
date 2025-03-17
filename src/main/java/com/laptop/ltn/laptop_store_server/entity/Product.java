@@ -21,7 +21,7 @@ import java.util.Map;
 @Builder
 public class Product {
     @Id
-    private ObjectId id;
+    private String _id;
 
     @NotNull
     private String title;

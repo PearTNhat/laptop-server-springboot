@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.DocumentReference;
 @AllArgsConstructor
 @Builder
 public class CartItem {
-    @DocumentReference(collection = "products")
+    @DocumentReference(collection = "products",lazy = true)
     private Product product;
     private int quantity;
     private String color;

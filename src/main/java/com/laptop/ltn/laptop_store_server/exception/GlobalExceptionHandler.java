@@ -5,9 +5,11 @@ import jakarta.validation.ConstraintViolation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.Map;
@@ -56,38 +58,22 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(errorCode.getHttpStatus()).body(apiResponse);
     }
 
-//    @ExceptionHandler(value = AuthorizationDeniedException.class)
-//    ResponseEntity<ApiResponse<Void>> authorizationDeniedException(AuthorizationDeniedException e) {
-//        ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
-//        ApiResponse<Void> apiResponse = new ApiResponse<>();
-//        apiResponse.setMessage(errorCode.getMessage());
-//        apiResponse.setSuccess(false);
-//        return ResponseEntity.status(errorCode.getHttpStatus()).body(apiResponse);
-//    }
-    //    Lỗi validation
-    @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    ResponseEntity<ApiResponse<Void>> methodArgumentNotValidException(MethodArgumentNotValidException e) {
-        String enumKey = Objects.requireNonNull(e.getFieldError()).getDefaultMessage();
-        ErrorCode errorCode = ErrorCode.INVALID_KEY;
-        Map<String, Object> attributes = null;
-        try {
-            errorCode = ErrorCode.valueOf(enumKey);
-            var constraintViolations =
-                    e.getBindingResult().getAllErrors().getFirst().unwrap(ConstraintViolation.class);
-            attributes = constraintViolations.getConstraintDescriptor().getAttributes();
-        } catch (IllegalArgumentException ex) {
-        }
+    @ExceptionHandler(value = AuthorizationDeniedException.class)
+    ResponseEntity<ApiResponse<Void>> authorizationDeniedException(AuthorizationDeniedException e) {
+        ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
         ApiResponse<Void> apiResponse = new ApiResponse<>();
-        apiResponse.setMessage(
-                Objects.nonNull(attributes)
-                        ? mapAttribute(errorCode.getMessage(), attributes)
-                        : errorCode.getMessage());
+        apiResponse.setMessage(errorCode.getMessage());
         apiResponse.setSuccess(false);
         return ResponseEntity.status(errorCode.getHttpStatus()).body(apiResponse);
     }
+    //    Lỗi validation
+    @ExceptionHandler(value = MethodArgumentNotValidException.class)
+    ResponseEntity<ApiResponse<Void>> methodArgumentNotValidException(MethodArgumentNotValidException e) {
+        String message = Objects.requireNonNull(e.getFieldError()).getDefaultMessage();
 
-    private String mapAttribute(String message, Map<String, Object> attributes) {
-        String minValue = attributes.get(MIN_ATTRIBUTE).toString();
-        return message.replace("{" + MIN_ATTRIBUTE + "}", minValue);
+        ApiResponse<Void> apiResponse = new ApiResponse<>();
+        apiResponse.setMessage(message);
+        apiResponse.setSuccess(false);
+        return ResponseEntity.badRequest().body(apiResponse);
     }
 }

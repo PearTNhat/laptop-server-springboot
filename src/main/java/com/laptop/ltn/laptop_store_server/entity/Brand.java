@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @Document(collection = "brands") // Tương đương với collection "Series" trong MongoDB
 public class Brand {
     @Id
-    private ObjectId id; // MongoDB sử dụng _id (String)
+    private String _id; // MongoDB sử dụng _id (String)
 
     private String title;
 

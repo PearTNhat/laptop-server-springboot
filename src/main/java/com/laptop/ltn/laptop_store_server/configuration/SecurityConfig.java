@@ -20,28 +20,31 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import java.util.Arrays;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-    private final String[] GET_METHODS = {"user"};
+    private final String[] GET_METHODS = {"user/info"};
     private final String[] PUT_METHODS = {"user"};
+    private final String[] POST_METHODS = {"sendMail","sendMailWithAttachment"};
 
     @Value("${jwt.signerKey}")
     private String singerKey;
 
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, CustomJwtDecoder customJwtDecoder) throws Exception {
         http.authorizeHttpRequests(request ->
-                request.requestMatchers(HttpMethod.GET, GET_METHODS)
-                .permitAll()
+                request.requestMatchers(HttpMethod.POST, POST_METHODS).permitAll()
+                        .requestMatchers(HttpMethod.POST, "auth/**").permitAll()
                 .anyRequest()
                 .authenticated());
-//        http.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
-//                        .decoder(customJwtDecoder)
-//                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
-//                .authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
+        http.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
+                        .decoder(customJwtDecoder)
+                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                .authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
         http
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable);
@@ -60,9 +63,10 @@ public class SecurityConfig {
     public CorsFilter corsFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowCredentials(true);
-        corsConfiguration.addAllowedOriginPattern("http://localhost:3000");
+        corsConfiguration.addAllowedOriginPattern("http://localhost:6001");
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.addAllowedMethod("*");
+        corsConfiguration.setExposedHeaders(Arrays.asList("Set-Cookie"));
 
         UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
         urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);

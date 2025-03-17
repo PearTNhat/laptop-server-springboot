@@ -3,12 +3,15 @@ package com.laptop.ltn.laptop_store_server.entity;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.bson.types.ObjectId;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -21,7 +24,7 @@ import java.util.List;
 public class User {
 
     @Id
-    private ObjectId id;
+    private String _id;
 
     @NotNull
     private String firstName;
@@ -52,6 +55,11 @@ public class User {
     private String passwordResetToken;
     private String passwordResetExpires;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+
+    @CreatedDate
+    private Instant createdAt;  // Thời gian tạo
+
+    @LastModifiedDate
+    private Instant updatedAt;  // Thời gian cập nhật
+
 }
