@@ -21,7 +21,7 @@ public enum ErrorCode {
     INVALID_KEY(2004, "Invalid key", HttpStatus.BAD_REQUEST),
     INVALID_DOB(2005, "Date of birth must be at least {min}", HttpStatus.BAD_REQUEST),
 
-// auth
+    // auth
     UNAUTHENTICATED(3001, "Username or password are incorrect", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(3002, "You do not have permission", HttpStatus.FORBIDDEN),
     MISSING_TOKEN(3003, "Missing token or token invalid", HttpStatus.UNAUTHORIZED),
