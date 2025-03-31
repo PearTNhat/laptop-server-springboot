@@ -2,6 +2,7 @@ package com.laptop.ltn.laptop_store_server.service;
 
 import com.laptop.ltn.laptop_store_server.entity.Product;
 import com.laptop.ltn.laptop_store_server.repository.ProductRepository;
+import com.laptop.ltn.laptop_store_server.utils.TestDataDiffLogger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -67,6 +68,10 @@ public class ProductServiceTest {
         assertTrue(result.isPresent(), "Product should be present in result");
         assertEquals("Test Laptop", result.get().getTitle(), "Product title should match");
         verify(productRepository).findById("123");
+
+        // Log any differences between the original and returned product
+        TestDataDiffLogger.logDiff("findById", testProduct, result.orElse(null));
+
         logger.debug("findById test completed successfully");
     }
 
@@ -138,6 +143,16 @@ public class ProductServiceTest {
         when(productRepository.findById("123")).thenReturn(Optional.of(testProduct));
         when(productRepository.save(any(Product.class))).thenAnswer(i -> i.getArgument(0));
 
+        // Save original state of product for comparison by creating a similar product
+        Product originalProduct = Product.builder()
+                ._id(testProduct.get_id())
+                .title(testProduct.getTitle())
+                .slug(testProduct.getSlug())
+                .brand(testProduct.getBrand())
+                .price(testProduct.getPrice())
+                .discountPrice(testProduct.getDiscountPrice())
+                .build();
+
         // Act
         logger.debug("Executing productService.updateProduct");
         Optional<Product> result = productService.updateProduct("123", updatedProduct);
@@ -149,6 +164,10 @@ public class ProductServiceTest {
         // Original fields should remain unchanged
         assertEquals("test-laptop", result.get().getSlug(), "Slug should remain unchanged");
         assertEquals("Test Brand", result.get().getBrand(), "Brand should remain unchanged");
+
+        // Log differences between original and updated product
+        TestDataDiffLogger.logDiff("updateProduct", originalProduct, result.orElse(null));
+
         logger.debug("updateProduct test completed successfully");
     }
 

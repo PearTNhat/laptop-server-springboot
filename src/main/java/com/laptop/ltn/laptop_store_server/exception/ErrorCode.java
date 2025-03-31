@@ -25,8 +25,13 @@ public enum ErrorCode {
     UNAUTHENTICATED(3001, "Username or password are incorrect", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(3002, "You do not have permission", HttpStatus.FORBIDDEN),
     MISSING_TOKEN(3003, "Missing token or token invalid", HttpStatus.UNAUTHORIZED),
-    OTP_INCORRECT(3004,"OTP or Email incorrect", HttpStatus.BAD_REQUEST),
-    BLOCKED(3005,"Your account has been blocked", HttpStatus.BAD_REQUEST),
+    OTP_INCORRECT(3004, "OTP or Email incorrect", HttpStatus.BAD_REQUEST),
+    BLOCKED(3005, "Your account has been blocked", HttpStatus.BAD_REQUEST),
+
+    // Cart related errors
+    CART_NOT_FOUND(4001, "Cart not found", HttpStatus.NOT_FOUND),
+    PRODUCT_NOT_FOUND(4002, "Product not found", HttpStatus.NOT_FOUND),
+    INSUFFICIENT_STOCK(4003, "Insufficient product stock", HttpStatus.BAD_REQUEST),
 
     ;
 

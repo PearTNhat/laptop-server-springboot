@@ -29,6 +29,7 @@ public class SecurityConfig {
     private final String[] GET_METHODS = { "user/info" };
     private final String[] PUT_METHODS = { "user" };
     private final String[] POST_METHODS = { "sendMail", "sendMailWithAttachment" };
+    private final String[] AUTHENTICATED_ENDPOINTS = { "cart/**" };
 
     @Value("${jwt.signerKey}")
     private String singerKey;
@@ -37,6 +38,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http, CustomJwtDecoder customJwtDecoder) throws Exception {
         http.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.POST, POST_METHODS).permitAll()
                 .requestMatchers(HttpMethod.POST, "auth/**").permitAll()
+                .requestMatchers(AUTHENTICATED_ENDPOINTS).authenticated()
                 .requestMatchers("/**").permitAll() // Allow all requests for now
                 .anyRequest()
                 .authenticated());
