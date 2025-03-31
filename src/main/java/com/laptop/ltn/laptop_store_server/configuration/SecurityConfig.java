@@ -26,31 +26,31 @@ import java.util.Arrays;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-    private final String[] GET_METHODS = {"user/info"};
-    private final String[] PUT_METHODS = {"user"};
-    private final String[] POST_METHODS = {"sendMail","sendMailWithAttachment"};
+    private final String[] GET_METHODS = { "user/info" };
+    private final String[] PUT_METHODS = { "user" };
+    private final String[] POST_METHODS = { "sendMail", "sendMailWithAttachment" };
 
     @Value("${jwt.signerKey}")
     private String singerKey;
 
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, CustomJwtDecoder customJwtDecoder) throws Exception {
-        http.authorizeHttpRequests(request ->
-                request.requestMatchers(HttpMethod.POST, POST_METHODS).permitAll()
-                        .requestMatchers(HttpMethod.POST, "auth/**").permitAll()
+        http.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.POST, POST_METHODS).permitAll()
+                .requestMatchers(HttpMethod.POST, "auth/**").permitAll()
+                .requestMatchers("/**").permitAll() // Allow all requests for now
                 .anyRequest()
                 .authenticated());
         http.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
-                        .decoder(customJwtDecoder)
-                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                .decoder(customJwtDecoder)
+                .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                 .authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
         http
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable);
         return http.build();
     }
-    //     config prefix jwt
+
+    // config prefix jwt
     @Bean
     JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
@@ -59,6 +59,7 @@ public class SecurityConfig {
         converter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
         return converter;
     }
+
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();

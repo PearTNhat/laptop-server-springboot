@@ -30,10 +30,9 @@ public class Series {
     @DocumentReference(collection = "brand") // Liên kết tới Brand (Tương đương ref: 'Brands' trong Mongoose)
     private Brand brand;
 
-
     @CreatedDate
-    private Instant createdAt;  // Thời gian tạo
+    private Instant createdAt; // Thời gian tạo
 
     @LastModifiedDate
-    private Instant updatedAt;  // Thời gian cập nhật
+    private Instant updatedAt; // Thời gian cập nhật
 }
