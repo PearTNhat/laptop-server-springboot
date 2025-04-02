@@ -25,6 +25,7 @@ public class UserController {
     @GetMapping
     public ApiResponse<List<UserResponse>> getAllUsers() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("Authorities: " + authentication.getAuthorities());
         System.out.println(authentication.getName());
         authentication
                 .getAuthorities()

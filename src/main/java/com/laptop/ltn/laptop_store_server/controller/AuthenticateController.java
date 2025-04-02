@@ -28,7 +28,7 @@ public class AuthenticateController {
     private AuthenticateService authService;
 
     @PostMapping("/register")
-    public ApiResponse<?> register(@RequestBody RegisterRequest request) {
+    public ApiResponse<?> register(@Valid @RequestBody RegisterRequest request) {
         boolean result = authService.register(request);
         if (result) {
             return ApiResponse.builder()
@@ -41,14 +41,13 @@ public class AuthenticateController {
     }
     @PostMapping("/final-register")
     public ApiResponse<?> finalRegister(@RequestBody @Valid FinalRegisterRequest request) {
-        System.out.println(request.toString());
         authService.finalRegister(request);
         return ApiResponse.builder()
                 .message("Register successfully")
                 .build();
     }
     @PostMapping("/login")
-    public ApiLoginResponse<?> login(@RequestBody LoginRequest request, HttpServletResponse response) {
+    public ApiLoginResponse<?> login(@Valid @RequestBody LoginRequest request, HttpServletResponse response) {
         LoginResponse result = authService.login(request,response);
         return ApiLoginResponse.builder()
                 .message("Login successfully")

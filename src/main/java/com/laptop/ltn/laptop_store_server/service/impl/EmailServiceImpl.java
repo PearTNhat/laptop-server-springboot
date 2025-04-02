@@ -6,6 +6,8 @@ package com.laptop.ltn.laptop_store_server.service.impl;
 import java.io.File;
 
 import com.laptop.ltn.laptop_store_server.dto.request.EmailRequest;
+import com.laptop.ltn.laptop_store_server.exception.AppException;
+import com.laptop.ltn.laptop_store_server.exception.ErrorCode;
 import com.laptop.ltn.laptop_store_server.service.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -61,7 +63,7 @@ public class EmailServiceImpl implements EmailService {
 
         // Catch block to handle the exceptions
         catch (Exception e) {
-            return "Error while Sending Mail";
+            throw new AppException(ErrorCode.SEND_MAIL_FAIL);
         }
     }
 }

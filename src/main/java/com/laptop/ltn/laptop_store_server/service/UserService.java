@@ -6,7 +6,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import java.util.List;
 
 public interface UserService {
-    @PreAuthorize("hasRole('admin')")
+    @PreAuthorize("hasAuthority('admin')")
     List<UserResponse> getAllUsers();
 
     UserResponse getUserInfo();

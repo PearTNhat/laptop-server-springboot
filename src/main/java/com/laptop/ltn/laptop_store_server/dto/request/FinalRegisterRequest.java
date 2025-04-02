@@ -3,6 +3,7 @@ package com.laptop.ltn.laptop_store_server.dto.request;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,5 +19,6 @@ public class FinalRegisterRequest {
     String email;
     @NotNull(message = "Otp is required")
     @NotBlank(message = "Otp is required")
+    @Size(min = 5, max = 5, message = "Otp must be exactly 5 characters")
     String otp;
 }

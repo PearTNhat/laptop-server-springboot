@@ -33,6 +33,9 @@ public enum ErrorCode {
     PRODUCT_NOT_FOUND(4002, "Product not found", HttpStatus.NOT_FOUND),
     INSUFFICIENT_STOCK(4003, "Insufficient product stock", HttpStatus.BAD_REQUEST),
 
+    // mail
+    SEND_MAIL_FAIL(1007,"Error while sending mail", HttpStatus.BAD_REQUEST)
+
     ;
 
     int code;
