@@ -26,7 +26,7 @@ import java.util.Arrays;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-    private final String[] GET_METHODS = {"user/info"};
+    private final String[] GET_METHODS = {"user/info","/brand"};
     private final String[] PUT_METHODS = {"user"};
     private final String[] POST_METHODS = {"sendMail","sendMailWithAttachment"};
 
@@ -38,6 +38,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http, CustomJwtDecoder customJwtDecoder) throws Exception {
         http.authorizeHttpRequests(request ->
                 request.requestMatchers(HttpMethod.POST, POST_METHODS).permitAll()
+                        .requestMatchers(HttpMethod.GET,GET_METHODS).permitAll()
                         .requestMatchers(HttpMethod.POST, "auth/**").permitAll()
                 .anyRequest()
                 .authenticated());

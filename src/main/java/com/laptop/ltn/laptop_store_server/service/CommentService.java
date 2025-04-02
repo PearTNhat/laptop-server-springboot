@@ -26,8 +26,8 @@ public class CommentService {
     private ProductRepository productRepository;
 
     public Comment createComment(String productId, Integer rating, String content) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByEmail(email)
+        String id = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Product product = productRepository.findById(productId)
