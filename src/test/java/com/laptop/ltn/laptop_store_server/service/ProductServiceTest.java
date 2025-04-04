@@ -2,6 +2,7 @@ package com.laptop.ltn.laptop_store_server.service;
 
 import com.laptop.ltn.laptop_store_server.entity.Product;
 import com.laptop.ltn.laptop_store_server.repository.ProductRepository;
+import com.laptop.ltn.laptop_store_server.service.impl.ProductServiceImpl;
 import com.laptop.ltn.laptop_store_server.utils.TestDataDiffLogger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,6 +36,9 @@ public class ProductServiceTest {
     private MongoTemplate mongoTemplate;
 
     @InjectMocks
+    private ProductServiceImpl productServiceImpl;
+
+    // Using the interface reference for tests
     private ProductService productService;
 
     private Product testProduct;
@@ -51,6 +55,9 @@ public class ProductServiceTest {
                 .discountPrice(900.0)
                 .build();
         logger.debug("Test product created: {}", testProduct);
+
+        // Set the implementation to the interface reference
+        productService = productServiceImpl;
     }
 
     @Test

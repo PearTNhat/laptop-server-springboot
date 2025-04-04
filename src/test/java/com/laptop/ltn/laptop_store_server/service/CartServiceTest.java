@@ -8,6 +8,7 @@ import com.laptop.ltn.laptop_store_server.exception.CustomException;
 import com.laptop.ltn.laptop_store_server.repository.CartRepository;
 import com.laptop.ltn.laptop_store_server.repository.ProductRepository;
 import com.laptop.ltn.laptop_store_server.repository.UserRepository;
+import com.laptop.ltn.laptop_store_server.service.impl.CartServiceImpl;
 import com.laptop.ltn.laptop_store_server.utils.TestDataDiffLogger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,6 +44,9 @@ public class CartServiceTest {
     private UserRepository userRepository;
 
     @InjectMocks
+    private CartServiceImpl cartServiceImpl;
+
+    // Using the interface reference for tests
     private CartService cartService;
 
     private User testUser;
@@ -89,6 +93,9 @@ public class CartServiceTest {
 
         logger.debug("Test data created: user={}, product={}, cart={}",
                 testUser.getEmail(), testProduct.getTitle(), testCart.get_id());
+
+        // Set the implementation to the interface reference
+        cartService = cartServiceImpl;
     }
 
     @Test

@@ -1,237 +1,24 @@
 package com.laptop.ltn.laptop_store_server.service;
 
 import com.laptop.ltn.laptop_store_server.entity.Cart;
-import com.laptop.ltn.laptop_store_server.entity.CartItem;
-import com.laptop.ltn.laptop_store_server.entity.Product;
-import com.laptop.ltn.laptop_store_server.entity.User;
-import com.laptop.ltn.laptop_store_server.exception.CustomException;
-import com.laptop.ltn.laptop_store_server.exception.ErrorCode;
-import com.laptop.ltn.laptop_store_server.repository.CartRepository;
-import com.laptop.ltn.laptop_store_server.repository.ProductRepository;
-import com.laptop.ltn.laptop_store_server.repository.UserRepository;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
-import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-@Service
-@RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class CartService {
+public interface CartService {
+    Optional<Cart> getCartByUserId(String userId);
 
-    CartRepository cartRepository;
-    ProductRepository productRepository;
-    UserRepository userRepository;
+    Cart createCart(String userId);
 
-    /**
-     * Get cart by user ID
-     */
-    public Optional<Cart> getCartByUserId(String userId) {
-        return cartRepository.findByUserId(userId);
-    }
+    Cart getOrCreateCart(String userId);
 
-    /**
-     * Create a new cart for user
-     */
-    public Cart createCart(String userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_EXISTED));
+    Map<String, Object> getCartDetails(String userId);
 
-        Cart cart = Cart.builder()
-                .user(user)
-                .items(List.of())
-                .totalPrice(0.0)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
+    Cart addItemToCart(String userId, String productId, int quantity, String color);
 
-        return cartRepository.save(cart);
-    }
+    Cart updateCartItem(String userId, String productId, int quantity, String color);
 
-    /**
-     * Get or create cart for user
-     */
-    public Cart getOrCreateCart(String userId) {
-        return getCartByUserId(userId)
-                .orElseGet(() -> createCart(userId));
-    }
+    Cart removeCartItem(String userId, String productId, String color);
 
-    /**
-     * Add item to cart
-     */
-    public Cart addItemToCart(String userId, String productId, int quantity, String color) {
-        // Validate product exists
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
-
-        // Validate quantity
-        if (product.getQuantity() < quantity) {
-            throw new CustomException(ErrorCode.INSUFFICIENT_STOCK);
-        }
-
-        // Get user's cart
-        Cart cart = getOrCreateCart(userId);
-
-        // Find if product already exists in cart with same color
-        Optional<CartItem> existingItem = cart.getItems().stream()
-                .filter(item -> item.getProduct().get_id().equals(productId) &&
-                        (color == null || color.equals(item.getColor())))
-                .findFirst();
-
-        if (existingItem.isPresent()) {
-            // Update existing item
-            CartItem item = existingItem.get();
-            item.setQuantity(item.getQuantity() + quantity);
-        } else {
-            // Add new item
-            CartItem newItem = CartItem.builder()
-                    .product(product)
-                    .quantity(quantity)
-                    .color(color)
-                    .build();
-            cart.getItems().add(newItem);
-        }
-
-        // Recalculate cart total
-        updateCartTotal(cart);
-
-        // Update timestamp
-        cart.setUpdatedAt(LocalDateTime.now());
-
-        // Save and return updated cart
-        return cartRepository.save(cart);
-    }
-
-    /**
-     * Update cart item quantity
-     */
-    public Cart updateCartItem(String userId, String productId, int quantity, String color) {
-        // Validate product exists
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
-
-        // Get user's cart
-        Cart cart = getCartByUserId(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.CART_NOT_FOUND));
-
-        // Find item in cart
-        Optional<CartItem> itemOptional = cart.getItems().stream()
-                .filter(item -> item.getProduct().get_id().equals(productId) &&
-                        (color == null || color.equals(item.getColor())))
-                .findFirst();
-
-        if (itemOptional.isEmpty()) {
-            throw new CustomException(ErrorCode.PRODUCT_NOT_FOUND, "Product not found in cart");
-        }
-
-        if (quantity <= 0) {
-            // Remove item if quantity is 0 or negative
-            cart.getItems().remove(itemOptional.get());
-        } else {
-            // Validate stock
-            if (product.getQuantity() < quantity) {
-                throw new CustomException(ErrorCode.INSUFFICIENT_STOCK);
-            }
-
-            // Update quantity
-            itemOptional.get().setQuantity(quantity);
-        }
-
-        // Recalculate cart total
-        updateCartTotal(cart);
-
-        // Update timestamp
-        cart.setUpdatedAt(LocalDateTime.now());
-
-        // Save and return updated cart
-        return cartRepository.save(cart);
-    }
-
-    /**
-     * Remove item from cart
-     */
-    public Cart removeCartItem(String userId, String productId, String color) {
-        // Get user's cart
-        Cart cart = getCartByUserId(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.CART_NOT_FOUND));
-
-        // Count initial items
-        int initialSize = cart.getItems().size();
-
-        // Filter out the item to remove
-        List<CartItem> updatedItems = cart.getItems().stream()
-                .filter(item -> !(item.getProduct().get_id().equals(productId) &&
-                        (color == null || color.equals(item.getColor()))))
-                .collect(Collectors.toList());
-
-        // Check if item was removed
-        if (updatedItems.size() == initialSize) {
-            throw new CustomException(ErrorCode.PRODUCT_NOT_FOUND, "Product not found in cart");
-        }
-
-        // Update cart items
-        cart.setItems(updatedItems);
-
-        // Recalculate cart total
-        updateCartTotal(cart);
-
-        // Update timestamp
-        cart.setUpdatedAt(LocalDateTime.now());
-
-        // Save and return updated cart
-        return cartRepository.save(cart);
-    }
-
-    /**
-     * Clear cart (remove all items)
-     */
-    public Cart clearCart(String userId) {
-        // Get user's cart
-        Cart cart = getCartByUserId(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.CART_NOT_FOUND));
-
-        // Clear all items
-        cart.getItems().clear();
-        cart.setTotalPrice(0);
-
-        // Update timestamp
-        cart.setUpdatedAt(LocalDateTime.now());
-
-        // Save and return updated cart
-        return cartRepository.save(cart);
-    }
-
-    /**
-     * Get cart details with summary
-     */
-    public Map<String, Object> getCartDetails(String userId) {
-        // Get user's cart
-        Cart cart = getOrCreateCart(userId);
-
-        // Build response
-        Map<String, Object> response = new HashMap<>();
-        response.put("cart", cart);
-        response.put("itemCount", cart.getItems().size());
-        response.put("totalItems", cart.getItems().stream().mapToInt(CartItem::getQuantity).sum());
-        response.put("totalPrice", cart.getTotalPrice());
-
-        return response;
-    }
-
-    /**
-     * Helper method to recalculate cart total price
-     */
-    private void updateCartTotal(Cart cart) {
-        double total = cart.getItems().stream()
-                .mapToDouble(item -> item.getProduct().getDiscountPrice() * item.getQuantity())
-                .sum();
-        cart.setTotalPrice(total);
-    }
+    Cart clearCart(String userId);
 }
