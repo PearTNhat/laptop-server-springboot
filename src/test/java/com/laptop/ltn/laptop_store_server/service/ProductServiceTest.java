@@ -5,6 +5,7 @@ import com.laptop.ltn.laptop_store_server.repository.ProductRepository;
 import com.laptop.ltn.laptop_store_server.service.impl.ProductServiceImpl;
 import com.laptop.ltn.laptop_store_server.utils.TestDataDiffLogger;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -63,7 +64,8 @@ public class ProductServiceTest {
     }
 
     @Test
-    void findById_WhenProductExists_ShouldReturnProduct() {
+    @DisplayName("TCS-001: Find by ID when product exists should return product")
+    void TCS001_findById_WhenProductExists_ShouldReturnProduct() {
         // Arrange
         logger.info("Testing findById with product ID: 1");
         when(productRepository.findById("1")).thenReturn(Optional.of(testProduct));
@@ -85,7 +87,8 @@ public class ProductServiceTest {
     }
 
     @Test
-    void findById_WhenProductDoesNotExist_ShouldReturnEmpty() {
+    @DisplayName("TCS-002: Find by ID when product does not exist should return empty")
+    void TCS002_findById_WhenProductDoesNotExist_ShouldReturnEmpty() {
         // Arrange
         logger.info("Testing findById with product ID: 2");
         when(productRepository.findById("2")).thenReturn(Optional.empty());
@@ -103,7 +106,8 @@ public class ProductServiceTest {
     }
 
     @Test
-    void findBySlug_WhenProductExists_ShouldReturnProduct() {
+    @DisplayName("TCS-003: Find by slug when product exists should return product")
+    void TCS003_findBySlug_WhenProductExists_ShouldReturnProduct() {
         // Arrange
         logger.info("Testing findBySlug with slug: test-laptop");
         when(productRepository.findBySlug("test-laptop")).thenReturn(Optional.of(testProduct));
@@ -121,7 +125,8 @@ public class ProductServiceTest {
     }
 
     @Test
-    void createProduct_ShouldSetTimestampsAndSave() {
+    @DisplayName("TCS-004: Create product should set timestamps and save")
+    void TCS004_createProduct_ShouldSetTimestampsAndSave() {
         // Arrange
         logger.info("Testing createProduct");
         Product newProduct = Product.builder()
@@ -142,7 +147,8 @@ public class ProductServiceTest {
     }
 
     @Test
-    void updateProduct_WhenProductExists_ShouldUpdateAndReturnProduct() {
+    @DisplayName("TCS-005: Update product when product exists should update and return product")
+    void TCS005_updateProduct_WhenProductExists_ShouldUpdateAndReturnProduct() {
         // Arrange
         logger.info("Testing updateProduct with product ID: 1");
         Product updatedProduct = Product.builder()
@@ -172,7 +178,8 @@ public class ProductServiceTest {
     }
 
     @Test
-    void updateProduct_WhenProductDoesNotExist_ShouldReturnEmpty() {
+    @DisplayName("TCS-006: Update product when product does not exist should return empty")
+    void TCS006_updateProduct_WhenProductDoesNotExist_ShouldReturnEmpty() {
         // Arrange
         logger.info("Testing updateProduct with product ID: 2");
         Product updatedProduct = Product.builder().build();
@@ -192,7 +199,8 @@ public class ProductServiceTest {
     }
 
     @Test
-    void deleteProduct_WhenProductExists_ShouldReturnTrue() {
+    @DisplayName("TCS-007: Delete product when product exists should return true")
+    void TCS007_deleteProduct_WhenProductExists_ShouldReturnTrue() {
         // Arrange
         logger.info("Testing deleteProduct with product ID: 1");
         when(productRepository.existsById("1")).thenReturn(true);
@@ -211,7 +219,8 @@ public class ProductServiceTest {
     }
 
     @Test
-    void deleteProduct_WhenProductDoesNotExist_ShouldReturnFalse() {
+    @DisplayName("TCS-008: Delete product when product does not exist should return false")
+    void TCS008_deleteProduct_WhenProductDoesNotExist_ShouldReturnFalse() {
         // Arrange
         logger.info("Testing deleteProduct with product ID: 2");
         when(productRepository.existsById("2")).thenReturn(false);
@@ -229,7 +238,8 @@ public class ProductServiceTest {
     }
 
     @Test
-    void searchProducts_shouldReturnMatchingProducts() {
+    @DisplayName("TCS-009: Search products should return matching products")
+    void TCS009_searchProducts_shouldReturnMatchingProducts() {
         // Arrange
         logger.info("Testing searchProducts with query: Test");
         when(mongoTemplate.count(any(Query.class), eq(Product.class))).thenReturn(1L);
