@@ -1,11 +1,18 @@
 package com.laptop.ltn.laptop_store_server.service.impl;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.StringUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.laptop.ltn.laptop_store_server.dto.request.UserUpdateRequest;
 import com.laptop.ltn.laptop_store_server.dto.response.UserResponse;
+import com.laptop.ltn.laptop_store_server.entity.Image;
 import com.laptop.ltn.laptop_store_server.entity.User;
 import com.laptop.ltn.laptop_store_server.exception.AppException;
 import com.laptop.ltn.laptop_store_server.exception.ErrorCode;
 import com.laptop.ltn.laptop_store_server.mapper.UserMapper;
 import com.laptop.ltn.laptop_store_server.repository.UserRepository;
+import com.laptop.ltn.laptop_store_server.service.UploadImageFile;
 import com.laptop.ltn.laptop_store_server.service.UserService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +25,9 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,14 +43,12 @@ public class UserServiceImpl implements UserService {
     MongoTemplate mongoTemplate;
     UserRepository userRepository;
     UserMapper userMapper;
-
-    public List<UserResponse> getAllUsers() {
-        return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
-    }
+    UploadImageFile uploadImageFile;
+    Cloudinary cloudinary;
 
     public UserResponse getUserInfo() {
         String id = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userMapper.toUserResponse(userRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED)));
+        return userMapper.toUserResponse(userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
     }
 
     @Override
@@ -94,6 +101,55 @@ public class UserServiceImpl implements UserService {
         long total = mongoTemplate.count(query, User.class);
         List<User> users = mongoTemplate.find(query.with(pageable), User.class);
         return new org.springframework.data.domain.PageImpl<>(users, pageable, total);
+    }
+
+    @Override
+    public UserResponse updateUser(String documentJson, MultipartFile file) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        UserUpdateRequest request = null;
+        try {
+            request = objectMapper.readValue(documentJson, UserUpdateRequest.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        if (StringUtils.isEmpty(request.getFirstName()) &&
+                StringUtils.isEmpty(request.getLastName()) &&
+                StringUtils.isEmpty(request.getPhone()) &&
+                StringUtils.isEmpty(request.getEmail())) {
+            throw new RuntimeException("Missing inputs");
+        }
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Image uploadedImage = null;
+        if (file != null && !file.isEmpty()) {
+            try {
+                // Upload to Cloudinary
+                Map res = uploadImageFile.uploadImageFile(file);
+                uploadedImage = Image.builder()
+                        .url((String) res.get("url"))
+                        .public_id((String) res.get("public_id"))
+                        .build();
+
+
+                // Delete old avatar if exists
+                if (user.getAvatar() != null && user.getAvatar().getPublic_id() != null) {
+
+                    cloudinary.uploader().destroy(user.getAvatar().getPublic_id(), Map.of());
+                }
+                user.setAvatar(uploadedImage);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        // Cập nhật thông tin người dùng
+        user.setFirstName(request.getFirstName() != null ? request.getFirstName() : user.getFirstName());
+        user.setLastName(request.getLastName() != null ? request.getLastName() : user.getLastName());
+        user.setEmail(request.getEmail() != null ? request.getEmail() : user.getEmail());
+        user.setPhone(request.getPhone() != null ? request.getPhone() : user.getPhone());
+        user.setAddress(request.getAddress() != null ? request.getAddress() : user.getAddress());
+        return userMapper.toUserResponse(userRepository.save(user));
     }
 
     private Object castValue(String value) {

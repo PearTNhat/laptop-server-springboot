@@ -1,6 +1,7 @@
 package com.laptop.ltn.laptop_store_server.controller;
 
 
+import com.laptop.ltn.laptop_store_server.dto.request.UserUpdateRequest;
 import com.laptop.ltn.laptop_store_server.dto.response.ApiResponse;
 import com.laptop.ltn.laptop_store_server.dto.response.UserResponse;
 import com.laptop.ltn.laptop_store_server.entity.User;
@@ -15,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,12 +28,13 @@ import java.util.Map;
 public class UserController {
     UserService userService;
 
-    @RequestMapping(value = "/info",method = RequestMethod.GET)
+    @RequestMapping(value = "/info", method = RequestMethod.GET)
     public ApiResponse<Object> getUserInfo() {
         return ApiResponse.builder()
                 .data(userService.getUserInfo())
                 .build();
     }
+
     @GetMapping
     public ResponseEntity<Map<String, Object>> getAllUser(
             @RequestParam Map<String, String> queryParams,
@@ -38,9 +42,9 @@ public class UserController {
             @RequestParam(defaultValue = "10") int limit,
             @RequestParam(required = false) String sort
     ) {
-        Pageable pageable =  PageRequest.of(page, limit, Sort.by(Sort.Direction.ASC, "id"));
+        Pageable pageable = PageRequest.of(page, limit, Sort.by(Sort.Direction.ASC, "id"));
         if (sort != null) {
-            pageable =  PageRequest.of(page, limit, Sort.by(sort.split(",")));
+            pageable = PageRequest.of(page, limit, Sort.by(sort.split(",")));
         }
 
         Page<User> users = userService.findAllWithFilters(queryParams, pageable);
@@ -53,5 +57,13 @@ public class UserController {
 
     }
 
-
+    @PostMapping
+    public ApiResponse<UserResponse> updateUser(
+            @RequestParam("document") String documentJson,
+            @RequestPart(value = "file", required = false) MultipartFile file
+    ) {
+        return ApiResponse.<UserResponse>builder()
+                .data(userService.updateUser(documentJson, file))
+                .build();
+    }
 }

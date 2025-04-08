@@ -15,13 +15,13 @@ public class CloudinaryConfig {
     private String apiKey;
     @Value("${cloudinary.apiSecret}")
     private String apiSecret;
-    @Value("${cloudinary.apiKey}")
-    private String cloudinaryApiKey;
+    @Value("${cloudinary.cloudName}")
+    private String cloudName;
     @Bean
     Cloudinary configKey() {
         Map config = new HashMap();
-        config.put("cloud_name",apiKey);
-        config.put("api_key", cloudinaryApiKey);
+        config.put("cloud_name",cloudName);
+        config.put("api_key", apiKey);
         config.put("api_secret", apiSecret);
         return new Cloudinary(config);
     }

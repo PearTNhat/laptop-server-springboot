@@ -20,10 +20,8 @@ public class UploadImageFileImpl implements UploadImageFile {
 
     @Override
     public Map uploadImageFile(MultipartFile file) throws IOException {
-//        assert file.getOriginalFilename() != null;
-//        String publicValue = file.getOriginalFilename();
         Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
-            return uploadResult;
+        return uploadResult;
     }
 }
 
