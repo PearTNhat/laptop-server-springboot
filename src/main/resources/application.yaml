@@ -1,37 +1,37 @@
 server:
-  port: 8080
-  servlet:
-    context-path: /api
+    port: 8080
+    servlet:
+        context-path: /api
 spring:
-  data:
-    mongodb:
-      uri: ${MONGO_URI:mongodb+srv://myDataBase:tTjdKU89oiusfHUm@cluster0.1m9hxst.mongodb.net/ecomerce-digital?retryWrites\=true&w\=majority&appName\=Cluster0}
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: ${SMTP_USERNAME:letuannhat105a@gmail.com}
-    password: ${SMTP_PASSWORD:diyx wxyg woym frfe}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
+    data:
+        mongodb:
+            uri: ${MONGO_URI:mongodb+srv://myDataBase:tTjdKU89oiusfHUm@cluster0.1m9hxst.mongodb.net/ecomerce-digital?retryWrites\=true&w\=majority&appName\=Cluster0}
+    mail:
+        host: smtp.gmail.com
+        port: 587
+        username: ${SMTP_USERNAME:letuannhat105a@gmail.com}
+        password: ${SMTP_PASSWORD:diyx wxyg woym frfe}
+        properties:
+            mail:
+                smtp:
+                    auth: true
+                    starttls:
+                        enable: true
 jwt:
-  signerKey: ${SIGNER_KEY:b+E6CwTOGidO5wFvOIj+gIfoy1vGzrgIybiVJp208fwZW2F/x8GvYAPwlJ2XlMDs}
-  valid-duration: 2000000 #seconds
-  refreshable-duration: 12000000 #seconds
+    signerKey: ${SIGNER_KEY:b+E6CwTOGidO5wFvOIj+gIfoy1vGzrgIybiVJp208fwZW2F/x8GvYAPwlJ2XlMDs}
+    valid-duration: 2000000 #seconds
+    refreshable-duration: 12000000 #seconds
 cloudinary:
-  cloudName: ${CLOUDINARY_NAME:dfz51ssyj}
-  apiKey: ${CLOUDINARY_API_KEY:863829725281893}
-  apiSecret: ${CLOUDINARY_API_SECRET:saK_hIfL5si8X9fcna6ImuVdgIs}
+    cloudName: ${CLOUDINARY_NAME:dfz51ssyj}
+    apiKey: ${CLOUDINARY_API_KEY:863829725281893}
+    apiSecret: ${CLOUDINARY_API_SECRET:saK_hIfL5si8X9fcna6ImuVdgIs}
 
 momo:
-  partnerCode: MOMOIBXY20250219_TEST
-  accessKey: aPuvoDokFzV6Izbg
-  secretKey: 9C8GOJ3F4y8k3OuGK0xg0cCwnIvc1sTo
-  endpoint: https://test-payment.momo.vn/v2/gateway/api/create
-  redirectUrl: http://localhost:5173
-  ipnUrl: http://localhost:8080/api/order/payment/callback
-  urlCheckTransaction: https://test-payment.momo.vn/v2/gateway/api/query
-  requestType: captureWallet
+    partnerCode: MOMOIBXY20250219_TEST
+    accessKey: aPuvoDokFzV6Izbg
+    secretKey: 9C8GOJ3F4y8k3OuGK0xg0cCwnIvc1sTo
+    endpoint: https://test-payment.momo.vn/v2/gateway/api/create
+    redirectUrl: http://localhost:5173
+    ipnUrl: http://localhost/8080/api/order/payment/callback
+    requestType: captureWallet
+    urlCheckTransaction: https://test-payment.momo.vn/v2/gateway/api/query

@@ -40,7 +40,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.POST, POST_METHODS).permitAll()
                 .requestMatchers(HttpMethod.POST, "auth/**").permitAll()
                 .requestMatchers(AUTHENTICATED_ENDPOINTS).authenticated()
-              //  .requestMatchers("/**").permitAll() // Allow all requests for now
+                .requestMatchers("/**").permitAll() // Allow all requests for now
                 .anyRequest()
                 .authenticated());
         http.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
@@ -77,6 +77,7 @@ public class SecurityConfig {
 
         return new CorsFilter(urlBasedCorsConfigurationSource);
     }
+
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(10);

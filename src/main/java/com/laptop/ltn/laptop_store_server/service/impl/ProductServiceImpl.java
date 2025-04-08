@@ -82,11 +82,9 @@ public class ProductServiceImpl implements ProductService {
 
         // Build response
         Map<String, Object> response = new HashMap<>();
-        response.put("products", products);
-        response.put("currentPage", page);
-        response.put("totalItems", total);
-        response.put("totalPages", (int) Math.ceil((double) total / size));
-
+        response.put("data", products);
+        response.put("count", total);
+        response.put("success", true);
         return response;
     }
 
