@@ -72,8 +72,15 @@ public class ProductController {
      * @param brand    Filter by brand (optional)
      * @param minPrice Filter by minimum price (optional)
      * @param maxPrice Filter by maximum price (optional)
-     * @param sortBy   Sort field (default "createdAt")
-     * @param order    Sort order: "asc" or "desc" (default "desc")
+     * @param sort     Sort field (default "createdAt"). Prefix with "-" for
+     *                 descending, "+" for ascending.
+     *                 Special values include:
+     *                 "soldQuantity" - sort by sold quantity (best-selling)
+     *                 "createdAt" - sort by creation date (new arrivals)
+     *                 "price" - sort by discount price
+     *                 "rating" - sort by total rating
+     * @param order    Sort order: "asc" or "desc" (default "desc") - only used if
+     *                 sort doesn't start with "-" or "+"
      * @return List of products and metadata
      */
     @GetMapping
@@ -83,11 +90,9 @@ public class ProductController {
             @RequestParam(required = false) String brand,
             @RequestParam(required = false) Double minPrice,
             @RequestParam(required = false) Double maxPrice,
-            @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "desc") String order) {
+            @RequestParam(defaultValue = "-createdAt") String sort) {
         try {
-            Map<String, Object> response = productService.getAllProducts(page, size, brand, minPrice, maxPrice, sortBy,
-                    order);
+            Map<String, Object> response = productService.getAllProducts(page, size, brand, minPrice, maxPrice, sort);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

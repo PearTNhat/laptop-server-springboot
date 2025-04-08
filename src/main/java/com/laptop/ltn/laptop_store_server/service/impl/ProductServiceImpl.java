@@ -48,8 +48,7 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public Map<String, Object> getAllProducts(int page, int size, String brand,
-            Double minPrice, Double maxPrice,
-            String sortBy, String order) {
+            Double minPrice, Double maxPrice, String sort) {
 
         // Create query with filters
         Query query = new Query();
@@ -74,8 +73,38 @@ public class ProductServiceImpl implements ProductService {
         query.limit(size);
 
         // Add sorting
-        Sort.Direction direction = order.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
-        query.with(Sort.by(direction, sortBy));
+        if (sort != null && !sort.isEmpty()) {
+            Sort mongoSort = Sort.unsorted();
+            String[] sortFields = sort.split(",");
+
+            for (String field : sortFields) {
+                String trimmedField = field.trim();
+                Sort.Direction direction = Sort.Direction.ASC;
+
+                // Handle sort direction
+                if (trimmedField.startsWith("-")) {
+                    direction = Sort.Direction.DESC;
+                    trimmedField = trimmedField.substring(1);
+                } else if (trimmedField.startsWith("+")) {
+                    trimmedField = trimmedField.substring(1);
+                }
+
+                // Handle special cases for nested fields
+                if (trimmedField.equals("price")) {
+                    mongoSort = mongoSort.and(Sort.by(direction, "discountPrice"));
+                } else if (trimmedField.equals("rating")) {
+                    mongoSort = mongoSort.and(Sort.by(direction, "totalRating"));
+                } else if (trimmedField.equals("bestSelling") || trimmedField.equals("soldQuantity")) {
+                    mongoSort = mongoSort.and(Sort.by(direction, "soldQuantity"));
+                } else if (trimmedField.equals("newArrivals")) {
+                    mongoSort = mongoSort.and(Sort.by(direction, "createdAt"));
+                } else {
+                    mongoSort = mongoSort.and(Sort.by(direction, trimmedField));
+                }
+            }
+
+            query.with(mongoSort);
+        }
 
         // Execute query
         List<Product> products = mongoTemplate.find(query, Product.class);
