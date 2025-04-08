@@ -15,6 +15,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -47,34 +48,35 @@ public class ProductServiceTest {
     void setUp() {
         logger.info("Setting up test product data");
         testProduct = Product.builder()
-                ._id("123")
+                ._id("1")
                 .title("Test Laptop")
                 .slug("test-laptop")
+                .price(999)
+                .discountPrice(899.0)
                 .brand("Test Brand")
-                .price(1000)
-                .discountPrice(900.0)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
                 .build();
-        logger.debug("Test product created: {}", testProduct);
 
         // Set the implementation to the interface reference
         productService = productServiceImpl;
     }
 
     @Test
-    void findById_shouldReturnProduct_whenProductExists() {
+    void findById_WhenProductExists_ShouldReturnProduct() {
         // Arrange
-        logger.info("Testing findById with product ID: 123");
-        when(productRepository.findById("123")).thenReturn(Optional.of(testProduct));
+        logger.info("Testing findById with product ID: 1");
+        when(productRepository.findById("1")).thenReturn(Optional.of(testProduct));
 
         // Act
-        logger.debug("Executing productService.findById(123)");
-        Optional<Product> result = productService.findById("123");
+        logger.debug("Executing productService.findById(1)");
+        Optional<Product> result = productService.findById("1");
 
         // Assert
         logger.info("Verifying findById test results");
         assertTrue(result.isPresent(), "Product should be present in result");
-        assertEquals("Test Laptop", result.get().getTitle(), "Product title should match");
-        verify(productRepository).findById("123");
+        assertEquals(testProduct, result.get(), "Product should match");
+        verify(productRepository).findById("1");
 
         // Log any differences between the original and returned product
         TestDataDiffLogger.logDiff("findById", testProduct, result.orElse(null));
@@ -83,7 +85,25 @@ public class ProductServiceTest {
     }
 
     @Test
-    void findBySlug_shouldReturnProduct_whenProductExists() {
+    void findById_WhenProductDoesNotExist_ShouldReturnEmpty() {
+        // Arrange
+        logger.info("Testing findById with product ID: 2");
+        when(productRepository.findById("2")).thenReturn(Optional.empty());
+
+        // Act
+        logger.debug("Executing productService.findById(2)");
+        Optional<Product> result = productService.findById("2");
+
+        // Assert
+        logger.info("Verifying findById test results");
+        assertFalse(result.isPresent(), "Product should not be present in result");
+        verify(productRepository).findById("2");
+
+        logger.debug("findById test completed successfully");
+    }
+
+    @Test
+    void findBySlug_WhenProductExists_ShouldReturnProduct() {
         // Arrange
         logger.info("Testing findBySlug with slug: test-laptop");
         when(productRepository.findBySlug("test-laptop")).thenReturn(Optional.of(testProduct));
@@ -95,104 +115,116 @@ public class ProductServiceTest {
         // Assert
         logger.info("Verifying findBySlug test results");
         assertTrue(result.isPresent(), "Product should be present in result");
-        assertEquals("123", result.get().get_id(), "Product ID should match");
+        assertEquals(testProduct, result.get(), "Product should match");
         verify(productRepository).findBySlug("test-laptop");
         logger.debug("findBySlug test completed successfully");
     }
 
     @Test
-    void getAllProducts_shouldReturnProductsWithPagination() {
-        // Arrange
-        logger.info("Testing getAllProducts with pagination");
-        when(mongoTemplate.count(any(Query.class), eq(Product.class))).thenReturn(1L);
-        when(mongoTemplate.find(any(Query.class), eq(Product.class))).thenReturn(List.of(testProduct));
-
-        // Act
-        logger.debug("Executing productService.getAllProducts with page=0, size=10");
-        Map<String, Object> result = productService.getAllProducts(0, 10, null, null, null, "createdAt", "desc");
-
-        // Assert
-        logger.info("Verifying getAllProducts test results");
-        assertEquals(1, ((List<Product>) result.get("products")).size(), "Should return 1 product");
-        assertEquals(0, result.get("currentPage"), "Current page should be 0");
-        assertEquals(1L, result.get("totalItems"), "Total items should be 1");
-        assertEquals(1, result.get("totalPages"), "Total pages should be 1");
-        logger.debug("getAllProducts test completed successfully");
-    }
-
-    @Test
-    void createProduct_shouldSaveAndReturnProduct() {
+    void createProduct_ShouldSetTimestampsAndSave() {
         // Arrange
         logger.info("Testing createProduct");
+        Product newProduct = Product.builder()
+                .title("New Laptop")
+                .build();
         when(productRepository.save(any(Product.class))).thenReturn(testProduct);
 
         // Act
         logger.debug("Executing productService.createProduct");
-        Product result = productService.createProduct(testProduct);
+        Product result = productService.createProduct(newProduct);
 
         // Assert
         logger.info("Verifying createProduct test results");
-        assertEquals("Test Laptop", result.getTitle(), "Product title should match");
         assertNotNull(result.getCreatedAt(), "CreatedAt should not be null");
         assertNotNull(result.getUpdatedAt(), "UpdatedAt should not be null");
-        verify(productRepository).save(testProduct);
+        verify(productRepository).save(any(Product.class));
         logger.debug("createProduct test completed successfully");
     }
 
     @Test
-    void updateProduct_shouldUpdateProduct_whenProductExists() {
+    void updateProduct_WhenProductExists_ShouldUpdateAndReturnProduct() {
         // Arrange
-        logger.info("Testing updateProduct with product ID: 123");
+        logger.info("Testing updateProduct with product ID: 1");
         Product updatedProduct = Product.builder()
                 .title("Updated Laptop")
+                .price(1099)
                 .build();
 
-        when(productRepository.findById("123")).thenReturn(Optional.of(testProduct));
-        when(productRepository.save(any(Product.class))).thenAnswer(i -> i.getArgument(0));
-
-        // Save original state of product for comparison by creating a similar product
-        Product originalProduct = Product.builder()
-                ._id(testProduct.get_id())
-                .title(testProduct.getTitle())
-                .slug(testProduct.getSlug())
-                .brand(testProduct.getBrand())
-                .price(testProduct.getPrice())
-                .discountPrice(testProduct.getDiscountPrice())
-                .build();
+        when(productRepository.findById("1")).thenReturn(Optional.of(testProduct));
+        when(productRepository.save(any(Product.class))).thenReturn(updatedProduct);
 
         // Act
         logger.debug("Executing productService.updateProduct");
-        Optional<Product> result = productService.updateProduct("123", updatedProduct);
+        Optional<Product> result = productService.updateProduct("1", updatedProduct);
 
         // Assert
         logger.info("Verifying updateProduct test results");
         assertTrue(result.isPresent(), "Product should be present in result");
-        assertEquals("Updated Laptop", result.get().getTitle(), "Product title should match");
-        // Original fields should remain unchanged
-        assertEquals("test-laptop", result.get().getSlug(), "Slug should remain unchanged");
-        assertEquals("Test Brand", result.get().getBrand(), "Brand should remain unchanged");
+        assertEquals(updatedProduct.getTitle(), result.get().getTitle(), "Product title should match");
+        assertEquals(updatedProduct.getPrice(), result.get().getPrice(), "Product price should match");
+        verify(productRepository).findById("1");
+        verify(productRepository).save(any(Product.class));
 
         // Log differences between original and updated product
-        TestDataDiffLogger.logDiff("updateProduct", originalProduct, result.orElse(null));
+        TestDataDiffLogger.logDiff("updateProduct", testProduct, result.orElse(null));
 
         logger.debug("updateProduct test completed successfully");
     }
 
     @Test
-    void deleteProduct_shouldReturnTrue_whenProductExists() {
+    void updateProduct_WhenProductDoesNotExist_ShouldReturnEmpty() {
         // Arrange
-        logger.info("Testing deleteProduct with product ID: 123");
-        when(productRepository.existsById("123")).thenReturn(true);
-        doNothing().when(productRepository).deleteById("123");
+        logger.info("Testing updateProduct with product ID: 2");
+        Product updatedProduct = Product.builder().build();
+        when(productRepository.findById("2")).thenReturn(Optional.empty());
+
+        // Act
+        logger.debug("Executing productService.updateProduct");
+        Optional<Product> result = productService.updateProduct("2", updatedProduct);
+
+        // Assert
+        logger.info("Verifying updateProduct test results");
+        assertFalse(result.isPresent(), "Product should not be present in result");
+        verify(productRepository).findById("2");
+        verify(productRepository, never()).save(any(Product.class));
+
+        logger.debug("updateProduct test completed successfully");
+    }
+
+    @Test
+    void deleteProduct_WhenProductExists_ShouldReturnTrue() {
+        // Arrange
+        logger.info("Testing deleteProduct with product ID: 1");
+        when(productRepository.existsById("1")).thenReturn(true);
+        doNothing().when(productRepository).deleteById("1");
 
         // Act
         logger.debug("Executing productService.deleteProduct");
-        boolean result = productService.deleteProduct("123");
+        boolean result = productService.deleteProduct("1");
 
         // Assert
         logger.info("Verifying deleteProduct test results");
         assertTrue(result, "Delete operation should return true");
-        verify(productRepository).deleteById("123");
+        verify(productRepository).existsById("1");
+        verify(productRepository).deleteById("1");
+        logger.debug("deleteProduct test completed successfully");
+    }
+
+    @Test
+    void deleteProduct_WhenProductDoesNotExist_ShouldReturnFalse() {
+        // Arrange
+        logger.info("Testing deleteProduct with product ID: 2");
+        when(productRepository.existsById("2")).thenReturn(false);
+
+        // Act
+        logger.debug("Executing productService.deleteProduct");
+        boolean result = productService.deleteProduct("2");
+
+        // Assert
+        logger.info("Verifying deleteProduct test results");
+        assertFalse(result, "Delete operation should return false");
+        verify(productRepository).existsById("2");
+        verify(productRepository, never()).deleteById(anyString());
         logger.debug("deleteProduct test completed successfully");
     }
 

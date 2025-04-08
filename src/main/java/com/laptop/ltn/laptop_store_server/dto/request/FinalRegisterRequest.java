@@ -19,6 +19,6 @@ public class FinalRegisterRequest {
     String email;
     @NotNull(message = "Otp is required")
     @NotBlank(message = "Otp is required")
-    @Size(min = 5, max = 5, message = "Otp must be exactly 5 characters")
+    @Size(min = 6, max = 6, message = "Otp must be exactly 6 characters")
     String otp;
 }

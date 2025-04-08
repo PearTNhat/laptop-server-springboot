@@ -11,7 +11,7 @@ public interface ProductService {
     Optional<Product> findBySlug(String slug);
 
     Map<String, Object> getAllProducts(int page, int size, String brand, Double minPrice, Double maxPrice,
-            String sortBy, String order);
+            String sort);
 
     Product createProduct(Product product);
 
