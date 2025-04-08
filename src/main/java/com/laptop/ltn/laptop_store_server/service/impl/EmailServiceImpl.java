@@ -39,16 +39,16 @@ public class EmailServiceImpl implements EmailService {
         try {
 
             // Creating a simple mail message
-            SimpleMailMessage mailMessage
-                    = new SimpleMailMessage();
+            SimpleMailMessage mailMessage = new SimpleMailMessage();
 
             // Setting up necessary details
             mailMessage.setFrom(sender);
             mailMessage.setTo(details.getRecipient());
+            String otp = details.getOtp().toString();
             String html = "<h1> Verify your account </h1>\n" +
                     "<p>\n" +
                     "  <h1> Your OTP </h1>\n" +
-                    "  <strong>" + details.getOtp() + "</strong>\n" +
+                    "  <strong>" + otp + "</strong>\n" +
                     "</p>\n" +
                     "<p>The OTP expires in 5 minutes</p>";
 
