@@ -6,6 +6,7 @@ import com.laptop.ltn.laptop_store_server.entity.Product;
 import com.laptop.ltn.laptop_store_server.entity.User;
 import com.laptop.ltn.laptop_store_server.service.CartService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -74,7 +75,8 @@ class CartControllerTest {
     }
 
     @Test
-    void getCart_ShouldReturnCartDetails() {
+    @DisplayName("TCC-034: Get cart should return cart details")
+    void TCC_getCart_ShouldReturnCartDetails() {
         // Arrange
         Map<String, Object> cartDetails = new HashMap<>();
         cartDetails.put("cart", testCart);
@@ -92,7 +94,8 @@ class CartControllerTest {
     }
 
     @Test
-    void addToCart_WithValidRequest_ShouldReturnUpdatedCart() {
+    @DisplayName("TCC-035: Add to cart with valid request should return updated cart")
+    void TCC_addToCart_WithValidRequest_ShouldReturnUpdatedCart() {
         // Arrange
         Map<String, Object> request = new HashMap<>();
         request.put("productId", "product1");
@@ -110,7 +113,8 @@ class CartControllerTest {
     }
 
     @Test
-    void addToCart_WithMissingRequiredFields_ShouldReturnBadRequest() {
+    @DisplayName("TCC-036: Add to cart with missing required fields should return bad request")
+    void TCC_addToCart_WithMissingRequiredFields_ShouldReturnBadRequest() {
         // Arrange
         Map<String, Object> request = new HashMap<>();
         request.put("productId", "product1");
@@ -127,7 +131,8 @@ class CartControllerTest {
     }
 
     @Test
-    void updateCartItem_WithValidRequest_ShouldReturnUpdatedCart() {
+    @DisplayName("TCC-037: Update cart item with valid request should return updated cart")
+    void TCC_updateCartItem_WithValidRequest_ShouldReturnUpdatedCart() {
         // Arrange
         Map<String, Object> request = new HashMap<>();
         request.put("productId", "product1");
@@ -145,7 +150,8 @@ class CartControllerTest {
     }
 
     @Test
-    void updateCartItem_WithMissingRequiredFields_ShouldReturnBadRequest() {
+    @DisplayName("TCC-038: Update cart item with missing required fields should return bad request")
+    void TCC_updateCartItem_WithMissingRequiredFields_ShouldReturnBadRequest() {
         // Arrange
         Map<String, Object> request = new HashMap<>();
         request.put("productId", "product1");
@@ -162,7 +168,8 @@ class CartControllerTest {
     }
 
     @Test
-    void removeCartItem_ShouldReturnUpdatedCart() {
+    @DisplayName("TCC-039: Remove cart item should return updated cart")
+    void TCC_removeCartItem_ShouldReturnUpdatedCart() {
         // Arrange
         when(cartService.removeCartItem("user1", "product1", "Black")).thenReturn(testCart);
 
@@ -176,7 +183,8 @@ class CartControllerTest {
     }
 
     @Test
-    void clearCart_ShouldReturnClearedCart() {
+    @DisplayName("TCC-040: Clear cart should return cleared cart")
+    void TCC_clearCart_ShouldReturnClearedCart() {
         // Arrange
         when(cartService.clearCart("user1")).thenReturn(testCart);
 

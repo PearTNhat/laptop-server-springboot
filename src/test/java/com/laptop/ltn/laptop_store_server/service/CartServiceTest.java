@@ -11,6 +11,7 @@ import com.laptop.ltn.laptop_store_server.repository.UserRepository;
 import com.laptop.ltn.laptop_store_server.service.impl.CartServiceImpl;
 import com.laptop.ltn.laptop_store_server.utils.TestDataDiffLogger;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -99,7 +100,8 @@ public class CartServiceTest {
     }
 
     @Test
-    void getCartByUserId_shouldReturnCart_whenCartExists() {
+    @DisplayName("TCS-010: Get cart by user ID should return cart when cart exists")
+    void TCS010_getCartByUserId_shouldReturnCart_whenCartExists() {
         // Arrange
         logger.info("Testing getCartByUserId with user ID: user123");
         when(cartRepository.findByUserId("user123")).thenReturn(Optional.of(testCart));
@@ -117,7 +119,8 @@ public class CartServiceTest {
     }
 
     @Test
-    void createCart_shouldCreateNewCart() {
+    @DisplayName("TCS-011: Create cart should create new cart")
+    void TCS011_createCart_shouldCreateNewCart() {
         // Arrange
         logger.info("Testing createCart for user ID: user123");
         when(userRepository.findById("user123")).thenReturn(Optional.of(testUser));
@@ -138,7 +141,8 @@ public class CartServiceTest {
     }
 
     @Test
-    void getOrCreateCart_shouldReturnExistingCart_whenCartExists() {
+    @DisplayName("TCS-012: Get or create cart should return existing cart when cart exists")
+    void TCS012_getOrCreateCart_shouldReturnExistingCart_whenCartExists() {
         // Arrange
         logger.info("Testing getOrCreateCart when cart exists");
         when(cartRepository.findByUserId("user123")).thenReturn(Optional.of(testCart));
@@ -157,7 +161,8 @@ public class CartServiceTest {
     }
 
     @Test
-    void getOrCreateCart_shouldCreateNewCart_whenCartDoesNotExist() {
+    @DisplayName("TCS-013: Get or create cart should create new cart when cart does not exist")
+    void TCS013_getOrCreateCart_shouldCreateNewCart_whenCartDoesNotExist() {
         // Arrange
         logger.info("Testing getOrCreateCart when cart doesn't exist");
         when(cartRepository.findByUserId("user123")).thenReturn(Optional.empty());
@@ -178,7 +183,8 @@ public class CartServiceTest {
     }
 
     @Test
-    void addItemToCart_shouldAddNewItem_whenItemNotInCart() {
+    @DisplayName("TCS-014: Add item to cart should add new item when item not in cart")
+    void TCS014_addItemToCart_shouldAddNewItem_whenItemNotInCart() {
         // Arrange
         logger.info("Testing addItemToCart with new item");
         when(productRepository.findById("prod123")).thenReturn(Optional.of(testProduct));
@@ -225,7 +231,8 @@ public class CartServiceTest {
     }
 
     @Test
-    void updateCartItem_shouldUpdateQuantity_whenItemExists() {
+    @DisplayName("TCS-015: Update cart item should update quantity when item exists")
+    void TCS015_updateCartItem_shouldUpdateQuantity_whenItemExists() {
         // Arrange
         logger.info("Testing updateCartItem for existing item");
         testCart.getItems().add(testCartItem);
@@ -281,7 +288,8 @@ public class CartServiceTest {
     }
 
     @Test
-    void removeCartItem_shouldRemoveItem_whenItemExists() {
+    @DisplayName("TCS-016: Remove cart item should remove item when item exists")
+    void TCS016_removeCartItem_shouldRemoveItem_whenItemExists() {
         // Arrange
         logger.info("Testing removeCartItem for existing item");
         testCart.getItems().add(testCartItem);
@@ -313,7 +321,8 @@ public class CartServiceTest {
     }
 
     @Test
-    void clearCart_shouldRemoveAllItems() {
+    @DisplayName("TCS-017: Clear cart should remove all items")
+    void TCS017_clearCart_shouldRemoveAllItems() {
         // Arrange
         logger.info("Testing clearCart");
         testCart.getItems().add(testCartItem);
@@ -345,7 +354,8 @@ public class CartServiceTest {
     }
 
     @Test
-    void getCartDetails_shouldReturnCartWithSummary() {
+    @DisplayName("TCS-018: Get cart details should return cart with summary")
+    void TCS018_getCartDetails_shouldReturnCartWithSummary() {
         // Arrange
         logger.info("Testing getCartDetails");
         testCart.getItems().add(testCartItem);
@@ -368,7 +378,8 @@ public class CartServiceTest {
     }
 
     @Test
-    void addItemToCart_shouldThrowException_whenProductNotFound() {
+    @DisplayName("TCS-019: Add item to cart should throw exception when product not found")
+    void TCS019_addItemToCart_shouldThrowException_whenProductNotFound() {
         // Arrange
         logger.info("Testing addItemToCart with non-existent product");
         when(productRepository.findById("nonexistent")).thenReturn(Optional.empty());
@@ -382,7 +393,8 @@ public class CartServiceTest {
     }
 
     @Test
-    void addItemToCart_shouldThrowException_whenInsufficientStock() {
+    @DisplayName("TCS-020: Add item to cart should throw exception when insufficient stock")
+    void TCS020_addItemToCart_shouldThrowException_whenInsufficientStock() {
         // Arrange
         logger.info("Testing addItemToCart with insufficient stock");
         when(productRepository.findById("prod123")).thenReturn(Optional.of(testProduct));

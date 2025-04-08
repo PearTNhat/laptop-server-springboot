@@ -3,6 +3,7 @@ package com.laptop.ltn.laptop_store_server.controller;
 import com.laptop.ltn.laptop_store_server.entity.Product;
 import com.laptop.ltn.laptop_store_server.service.ProductService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -45,7 +46,8 @@ class ProductControllerTest {
     }
 
     @Test
-    void getProductById_WhenProductExists_ShouldReturnProduct() {
+    @DisplayName("TCC-002: Get product by ID when product exists should return product")
+    void TCC002_getProductById_WhenProductExists_ShouldReturnProduct() {
         // Arrange
         when(productService.findById("1")).thenReturn(Optional.of(testProduct));
 
@@ -59,7 +61,8 @@ class ProductControllerTest {
     }
 
     @Test
-    void getProductById_WhenProductDoesNotExist_ShouldReturnNotFound() {
+    @DisplayName("TCC-003: Get product by ID when product does not exist should return not found")
+    void TCC003_getProductById_WhenProductDoesNotExist_ShouldReturnNotFound() {
         // Arrange
         when(productService.findById("2")).thenReturn(Optional.empty());
 
@@ -75,7 +78,8 @@ class ProductControllerTest {
     }
 
     @Test
-    void getProductBySlug_WhenProductExists_ShouldReturnProduct() {
+    @DisplayName("TCC-004: Get product by slug when product exists should return product")
+    void TCC004_getProductBySlug_WhenProductExists_ShouldReturnProduct() {
         // Arrange
         when(productService.findBySlug("test-laptop")).thenReturn(Optional.of(testProduct));
 
@@ -89,7 +93,8 @@ class ProductControllerTest {
     }
 
     @Test
-    void getProductBySlug_WhenProductDoesNotExist_ShouldReturnNotFound() {
+    @DisplayName("TCC-005: Get product by slug when product does not exist should return not found")
+    void TCC005_getProductBySlug_WhenProductDoesNotExist_ShouldReturnNotFound() {
         // Arrange
         when(productService.findBySlug("non-existent")).thenReturn(Optional.empty());
 
@@ -105,7 +110,8 @@ class ProductControllerTest {
     }
 
     @Test
-    void createProduct_ShouldReturnCreatedProduct() {
+    @DisplayName("TCC-006: Create product should return created product")
+    void TCC006_createProduct_ShouldReturnCreatedProduct() {
         // Arrange
         when(productService.createProduct(any(Product.class))).thenReturn(testProduct);
 
@@ -119,7 +125,8 @@ class ProductControllerTest {
     }
 
     @Test
-    void updateProduct_WhenProductExists_ShouldReturnUpdatedProduct() {
+    @DisplayName("TCC-007: Update product when product exists should return updated product")
+    void TCC007_updateProduct_WhenProductExists_ShouldReturnUpdatedProduct() {
         // Arrange
         Product updatedProduct = Product.builder()
                 .title("Updated Laptop")
@@ -136,7 +143,8 @@ class ProductControllerTest {
     }
 
     @Test
-    void updateProduct_WhenProductDoesNotExist_ShouldReturnNotFound() {
+    @DisplayName("TCC-008: Update product when product does not exist should return not found")
+    void TCC008_updateProduct_WhenProductDoesNotExist_ShouldReturnNotFound() {
         // Arrange
         Product updatedProduct = Product.builder().build();
         when(productService.updateProduct("2", updatedProduct)).thenReturn(Optional.empty());
@@ -153,7 +161,8 @@ class ProductControllerTest {
     }
 
     @Test
-    void deleteProduct_WhenProductExists_ShouldReturnSuccessMessage() {
+    @DisplayName("TCC-009: Delete product when product exists should return success message")
+    void TCC009_deleteProduct_WhenProductExists_ShouldReturnSuccessMessage() {
         // Arrange
         when(productService.deleteProduct("1")).thenReturn(true);
 
@@ -169,7 +178,8 @@ class ProductControllerTest {
     }
 
     @Test
-    void deleteProduct_WhenProductDoesNotExist_ShouldReturnNotFound() {
+    @DisplayName("TCC-010: Delete product when product does not exist should return not found")
+    void TCC010_deleteProduct_WhenProductDoesNotExist_ShouldReturnNotFound() {
         // Arrange
         when(productService.deleteProduct("2")).thenReturn(false);
 

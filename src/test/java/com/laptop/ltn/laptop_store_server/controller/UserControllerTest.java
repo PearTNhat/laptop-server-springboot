@@ -4,6 +4,7 @@ import com.laptop.ltn.laptop_store_server.dto.response.UserResponse;
 import com.laptop.ltn.laptop_store_server.service.UserService;
 import org.springframework.security.core.context.SecurityContext;
 import org.apache.hc.core5.http.HttpHeaders;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -32,7 +33,8 @@ public class UserControllerTest {
     private UserService userService;
 
     @Test
-    public void getUserInfo_shouldReturnUserInfo_whenAuthenticated() throws Exception {
+    @DisplayName("TCC-001: Get user info should return user info when authenticated")
+    public void TCC001_getUserInfo_shouldReturnUserInfo_whenAuthenticated() throws Exception {
         // Sử dụng Builder để tạo UserResponse
         UserResponse userResponse = UserResponse.builder()
                 ._id("123")
@@ -45,8 +47,8 @@ public class UserControllerTest {
 
         // Thực hiện yêu cầu GET và kiểm tra kết quả, với token trong header
         mockMvc.perform(MockMvcRequestBuilders.get("/user/info")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())  // Kiểm tra trạng thái HTTP là 200 OK
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk()) // Kiểm tra trạng thái HTTP là 200 OK
                 .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(true))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data._id").value("123"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.firstName").value("John"))

@@ -4,6 +4,7 @@ import com.laptop.ltn.laptop_store_server.dto.response.ApiResponse;
 import com.laptop.ltn.laptop_store_server.entity.Brand;
 import com.laptop.ltn.laptop_store_server.service.BrandService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -43,7 +44,8 @@ class BrandControllerTest {
     }
 
     @Test
-    void getAllBrands_ShouldReturnBrands() {
+    @DisplayName("TCC-011: Get all brands should return brands")
+    void TCC011_getAllBrands_ShouldReturnBrands() {
         // Arrange
         List<Brand> expectedBrands = Arrays.asList(testBrand);
         when(brandService.getAllBrands()).thenReturn(expectedBrands);
@@ -59,7 +61,8 @@ class BrandControllerTest {
     }
 
     @Test
-    void createBrand_ShouldReturnCreatedBrand() {
+    @DisplayName("TCC-012: Create brand should return created brand")
+    void TCC012_createBrand_ShouldReturnCreatedBrand() {
         // Arrange
         when(brandService.createBrand(any(Brand.class))).thenReturn(testBrand);
 
@@ -75,7 +78,8 @@ class BrandControllerTest {
     }
 
     @Test
-    void updateBrand_WhenBrandExists_ShouldReturnUpdatedBrand() {
+    @DisplayName("TCC-013: Update brand when brand exists should return updated brand")
+    void TCC013_updateBrand_WhenBrandExists_ShouldReturnUpdatedBrand() {
         // Arrange
         Brand updatedBrand = new Brand();
         updatedBrand.setTitle("Updated Brand");
@@ -93,7 +97,8 @@ class BrandControllerTest {
     }
 
     @Test
-    void updateBrand_WhenBrandDoesNotExist_ShouldReturnNotFound() {
+    @DisplayName("TCC-014: Update brand when brand does not exist should return not found")
+    void TCC014_updateBrand_WhenBrandDoesNotExist_ShouldReturnNotFound() {
         // Arrange
         Brand updatedBrand = new Brand();
         when(brandService.updateBrand("2", updatedBrand)).thenReturn(Optional.empty());
@@ -109,7 +114,8 @@ class BrandControllerTest {
     }
 
     @Test
-    void deleteBrand_WhenBrandExists_ShouldReturnSuccessMessage() {
+    @DisplayName("TCC-015: Delete brand when brand exists should return success message")
+    void TCC015_deleteBrand_WhenBrandExists_ShouldReturnSuccessMessage() {
         // Arrange
         when(brandService.deleteBrand("1")).thenReturn(true);
 
@@ -124,7 +130,8 @@ class BrandControllerTest {
     }
 
     @Test
-    void deleteBrand_WhenBrandDoesNotExist_ShouldReturnNotFound() {
+    @DisplayName("TCC-016: Delete brand when brand does not exist should return not found")
+    void TCC016_deleteBrand_WhenBrandDoesNotExist_ShouldReturnNotFound() {
         // Arrange
         when(brandService.deleteBrand("2")).thenReturn(false);
 

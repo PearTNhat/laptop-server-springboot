@@ -4,6 +4,7 @@ import com.laptop.ltn.laptop_store_server.entity.Brand;
 import com.laptop.ltn.laptop_store_server.repository.BrandRepository;
 import com.laptop.ltn.laptop_store_server.service.impl.BrandServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -41,7 +42,8 @@ class BrandServiceTest {
     }
 
     @Test
-    void getAllBrands_ShouldReturnAllBrands() {
+    @DisplayName("TCS-021: Get all brands should return all brands")
+    void TCS021_getAllBrands_ShouldReturnAllBrands() {
         // Arrange
         List<Brand> expectedBrands = Arrays.asList(testBrand);
         when(brandRepository.findAll()).thenReturn(expectedBrands);
@@ -55,7 +57,8 @@ class BrandServiceTest {
     }
 
     @Test
-    void createBrand_ShouldSetTimestampsAndSave() {
+    @DisplayName("TCS-022: Create brand should set timestamps and save")
+    void TCS022_createBrand_ShouldSetTimestampsAndSave() {
         // Arrange
         Brand newBrand = new Brand();
         newBrand.setTitle("New Brand");
@@ -72,7 +75,8 @@ class BrandServiceTest {
     }
 
     @Test
-    void updateBrand_WhenBrandExists_ShouldUpdateAndReturnBrand() {
+    @DisplayName("TCS-023: Update brand when brand exists should update and return brand")
+    void TCS023_updateBrand_WhenBrandExists_ShouldUpdateAndReturnBrand() {
         // Arrange
         Brand updatedBrand = new Brand();
         updatedBrand.setTitle("Updated Brand");
@@ -90,7 +94,8 @@ class BrandServiceTest {
     }
 
     @Test
-    void updateBrand_WhenBrandDoesNotExist_ShouldReturnEmpty() {
+    @DisplayName("TCS-024: Update brand when brand does not exist should return empty")
+    void TCS024_updateBrand_WhenBrandDoesNotExist_ShouldReturnEmpty() {
         // Arrange
         Brand updatedBrand = new Brand();
         when(brandRepository.findById("2")).thenReturn(Optional.empty());
@@ -105,7 +110,8 @@ class BrandServiceTest {
     }
 
     @Test
-    void deleteBrand_WhenBrandExists_ShouldReturnTrue() {
+    @DisplayName("TCS-025: Delete brand when brand exists should return true")
+    void TCS025_deleteBrand_WhenBrandExists_ShouldReturnTrue() {
         // Arrange
         when(brandRepository.existsById("1")).thenReturn(true);
 
@@ -119,7 +125,8 @@ class BrandServiceTest {
     }
 
     @Test
-    void deleteBrand_WhenBrandDoesNotExist_ShouldReturnFalse() {
+    @DisplayName("TCS-026: Delete brand when brand does not exist should return false")
+    void TCS026_deleteBrand_WhenBrandDoesNotExist_ShouldReturnFalse() {
         // Arrange
         when(brandRepository.existsById("2")).thenReturn(false);
 
