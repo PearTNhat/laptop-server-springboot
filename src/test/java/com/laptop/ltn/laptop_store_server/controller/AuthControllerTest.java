@@ -83,7 +83,7 @@ public class AuthControllerTest {
 
         finalRegisterRequest = FinalRegisterRequest.builder()
                 .email("test@example.com")
-                .otp("12345")
+                .otp("123456")
                 .build();
 
     }
@@ -335,7 +335,7 @@ public class AuthControllerTest {
     @Test
     void finalRegister_fail_missing_email() throws Exception {
         FinalRegisterRequest request = FinalRegisterRequest.builder()
-                .otp("12345")
+                .otp("123456")
                 .build(); // Không có email
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -368,7 +368,7 @@ public class AuthControllerTest {
     void finalRegister_fail_invalid_otp_length() throws Exception {
         FinalRegisterRequest request = FinalRegisterRequest.builder()
                 .email("test@example.com")
-                .otp("1234") // OTP chỉ có 4 ký tự
+                .otp("12346") // OTP chỉ có 5 ký tự
                 .build();
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -378,14 +378,14 @@ public class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(content))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Otp must be exactly 5 characters"));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Otp must be exactly 6 characters"));
     }
 
     @Test
     void finalRegister_fail_exceed_otp_length() throws Exception {
         FinalRegisterRequest request = FinalRegisterRequest.builder()
                 .email("test@example.com")
-                .otp("123456") // OTP có 6 ký tự
+                .otp("123457999") // OTP có 7 ký tự
                 .build();
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -395,7 +395,7 @@ public class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(content))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Otp must be exactly 5 characters"));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Otp must be exactly 6 characters"));
     }
 
 
