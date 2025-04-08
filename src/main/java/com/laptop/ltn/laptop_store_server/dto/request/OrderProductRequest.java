@@ -6,16 +6,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderRequest {
-    List<OrderProductRequest> products;
-    long total;
-    String address;
-    String phone;
-    String name;
+public class OrderProductRequest {
+    private Product product;
+    private String color;
+    private Integer quantity;
+
 }

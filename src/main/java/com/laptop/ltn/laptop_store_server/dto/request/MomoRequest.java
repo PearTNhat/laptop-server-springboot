@@ -22,5 +22,5 @@ public class MomoRequest {
     private String lang;
     private String signature;
     // callback
-    private String resultCode;
+    private Integer resultCode;
 }

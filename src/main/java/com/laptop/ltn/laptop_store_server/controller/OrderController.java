@@ -1,5 +1,6 @@
 package com.laptop.ltn.laptop_store_server.controller;
 
+import com.laptop.ltn.laptop_store_server.dto.request.MomoRequest;
 import com.laptop.ltn.laptop_store_server.dto.request.OrderRequest;
 import com.laptop.ltn.laptop_store_server.dto.response.MoMoResponse;
 import com.laptop.ltn.laptop_store_server.service.OrderService;
@@ -7,10 +8,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/order")
@@ -22,5 +20,13 @@ public class OrderController {
     @PostMapping("/payment")
     public ResponseEntity<MoMoResponse>  createOrder(@RequestBody OrderRequest request) {
         return ResponseEntity.ok(orderService.createOrder(request));
+    }
+    @PostMapping("/payment/callback")
+    public ResponseEntity<String> callBackPayment(@RequestBody MomoRequest request) {
+        return ResponseEntity.ok(orderService.callBackPayment(request));
+    }
+    @PostMapping("/payment/{orderId}")
+    public ResponseEntity<MoMoResponse> createOrder(@PathVariable String orderId) {
+        return ResponseEntity.ok(orderService.transactionStatus(orderId));
     }
 }

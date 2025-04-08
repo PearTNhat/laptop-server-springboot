@@ -7,4 +7,5 @@ import com.laptop.ltn.laptop_store_server.dto.response.MoMoResponse;
 public interface OrderService {
     MoMoResponse createOrder(OrderRequest request);
     String callBackPayment(MomoRequest request);
+    MoMoResponse transactionStatus(String orderId);
 }
