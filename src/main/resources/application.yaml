@@ -32,6 +32,6 @@ momo:
     secretKey: 9C8GOJ3F4y8k3OuGK0xg0cCwnIvc1sTo
     endpoint: https://test-payment.momo.vn/v2/gateway/api/create
     redirectUrl: http://localhost:5173
-    ipnUrl: http://localhost/8080/api/order/payment/callback
+    ipnUrl: http://localhost:8080/api/order/payment/callback
     requestType: captureWallet
     urlCheckTransaction: https://test-payment.momo.vn/v2/gateway/api/query
