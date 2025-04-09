@@ -40,7 +40,8 @@ public class AuthenticateImpl implements AuthenticateService {
     PasswordEncoder passwordEncoder;
     JwtUtils jwtUtils;
     UserMapper userMapper;
-
+    // lam settimeout
+    ScheduledExecutorService scheduler;
     @NonFinal
     @Value("${jwt.valid-duration}")
     int VALIDATION_DURATION;
@@ -48,11 +49,11 @@ public class AuthenticateImpl implements AuthenticateService {
     @Value("${jwt.refreshable-duration}")
     int REFRESHABLE_DURATION;
 
-    // lam settimeout
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
 
     @Override
     public Boolean register(RegisterRequest request) {
+        System.out.println("service");
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new AppException(ErrorCode.USER_EXISTED);
         }

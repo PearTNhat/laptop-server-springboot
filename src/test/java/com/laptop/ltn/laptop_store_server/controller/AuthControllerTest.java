@@ -103,8 +103,6 @@ public class AuthControllerTest {
                         response.addCookie(refreshTokenCookie);
                         return loginResponse;
                 }).when(authenticateService).login(Mockito.any(), Mockito.any());
-                // Mock HttpServletResponse để kiểm tra các hành động trên response (cookie,
-                // headers, etc.)
 
                 // Thực hiện POST request tới /auth/login
                 mockMvc.perform(MockMvcRequestBuilders.post("/auth/login")

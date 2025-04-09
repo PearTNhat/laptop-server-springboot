@@ -50,7 +50,6 @@ public class OrderControllerTest {
                         OrderProductRequest.builder().product(Product.builder()._id("1").build()).quantity(1).color("Đen").build()
                 ))
                 .build();
-
         // Giả lập MoMoResponse từ service
         MoMoResponse mockResponse = MoMoResponse.builder()
                 .payUrl("https://test-payment.momo.vn/pay")
@@ -58,11 +57,9 @@ public class OrderControllerTest {
                 .orderId("order123")
                 .message("Thành công")
                 .build();
-
         // Khi gọi service thì trả về mock
         Mockito.when(orderService.createOrder(Mockito.any(OrderRequest.class)))
                 .thenReturn(mockResponse);
-
         // Gửi request lên controller
         mockMvc.perform(MockMvcRequestBuilders.post("/order/payment")
                         .contentType(MediaType.APPLICATION_JSON)
