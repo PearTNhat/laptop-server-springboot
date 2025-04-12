@@ -1,7 +1,10 @@
 package com.laptop.ltn.laptop_store_server.controller;
 
 
+import com.laptop.ltn.laptop_store_server.dto.request.UpdateBlockRequest;
+import com.laptop.ltn.laptop_store_server.dto.request.UpdateRoleRequest;
 import com.laptop.ltn.laptop_store_server.dto.request.UserUpdateRequest;
+import com.laptop.ltn.laptop_store_server.dto.request.WishListRequest;
 import com.laptop.ltn.laptop_store_server.dto.response.ApiResponse;
 import com.laptop.ltn.laptop_store_server.dto.response.UserResponse;
 import com.laptop.ltn.laptop_store_server.entity.User;
@@ -64,6 +67,33 @@ public class UserController {
     ) {
         return ApiResponse.<UserResponse>builder()
                 .data(userService.updateUser(documentJson, file))
+                .build();
+    }
+    @PutMapping("/wish-list")
+    public ApiResponse<Void> updateWishList(
+            @RequestBody  WishListRequest request
+            ) {
+        userService.updateWishlist(request);
+        return ApiResponse.<Void>builder()
+                .message("Update wishlist successfully")
+                .build();
+    }
+    @PutMapping("/admin")
+    public ApiResponse<Void> updateUserByAdmin(
+           @RequestBody UpdateRoleRequest request
+    ) {
+        userService.updateRole(request);
+        return ApiResponse.<Void>builder()
+                .message("Update user successfully")
+                .build();
+    }
+    @PutMapping("/admin/block")
+    public ApiResponse<Void> blockUser(
+            @RequestBody UpdateBlockRequest request
+    ) {
+        userService.updateBlock(request);
+        return ApiResponse.<Void>builder()
+                .message("Block user successfully")
                 .build();
     }
 }

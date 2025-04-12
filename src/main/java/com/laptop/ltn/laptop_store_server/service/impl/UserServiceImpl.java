@@ -4,13 +4,18 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.StringUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.laptop.ltn.laptop_store_server.dto.request.UpdateBlockRequest;
+import com.laptop.ltn.laptop_store_server.dto.request.UpdateRoleRequest;
 import com.laptop.ltn.laptop_store_server.dto.request.UserUpdateRequest;
+import com.laptop.ltn.laptop_store_server.dto.request.WishListRequest;
 import com.laptop.ltn.laptop_store_server.dto.response.UserResponse;
 import com.laptop.ltn.laptop_store_server.entity.Image;
 import com.laptop.ltn.laptop_store_server.entity.User;
+import com.laptop.ltn.laptop_store_server.entity.WishListItem;
 import com.laptop.ltn.laptop_store_server.exception.AppException;
 import com.laptop.ltn.laptop_store_server.exception.ErrorCode;
 import com.laptop.ltn.laptop_store_server.mapper.UserMapper;
+import com.laptop.ltn.laptop_store_server.repository.ProductRepository;
 import com.laptop.ltn.laptop_store_server.repository.UserRepository;
 import com.laptop.ltn.laptop_store_server.service.UploadImageFile;
 import com.laptop.ltn.laptop_store_server.service.UserService;
@@ -45,6 +50,7 @@ public class UserServiceImpl implements UserService {
     UserMapper userMapper;
     UploadImageFile uploadImageFile;
     Cloudinary cloudinary;
+    private final ProductRepository productRepository;
 
     public UserResponse getUserInfo() {
         String id = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -150,6 +156,77 @@ public class UserServiceImpl implements UserService {
         user.setPhone(request.getPhone() != null ? request.getPhone() : user.getPhone());
         user.setAddress(request.getAddress() != null ? request.getAddress() : user.getAddress());
         return userMapper.toUserResponse(userRepository.save(user));
+    }
+
+    @Override
+    public void updateWishlist(WishListRequest request) {
+        String productId = request.getProduct();
+        if (productId == null || productId.isBlank()) {
+            throw new IllegalArgumentException("Product ID must not be null or empty");
+        }
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        boolean alreadyExists = user.getWishlist().stream()
+                .anyMatch(item -> item.getProduct().get_id().equals(productId));
+        if (alreadyExists) {
+            user.getWishlist().removeIf(item -> item.getProduct().get_id().equals(productId));
+        } else {
+            user.getWishlist().add(new WishListItem(productRepository.findById(productId).orElseThrow(()-> new RuntimeException("Product not found"))));
+        }
+
+        userRepository.save(user);
+    }
+    @Override
+    public void updateRole(UpdateRoleRequest request) {
+        String newRole = request.getRole();
+        String targetUserId = request.getUserId();
+        String currentUserId = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if (newRole == null || targetUserId == null) {
+            throw new IllegalArgumentException("Missing role or userId");
+        }
+        if (!newRole.equals("user") && !newRole.equals("admin")) {
+            throw new IllegalArgumentException("Role must be 'user' or 'admin'");
+        }
+
+        User currentUser = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new RuntimeException("Current user not found"));
+
+        if (!"admin".equals(currentUser.getRole())) {
+            throw new SecurityException("You are not admin");
+        }
+
+        User targetUser = userRepository.findById(targetUserId)
+                .orElseThrow(() -> new RuntimeException("Target user not found"));
+
+        targetUser.setRole(newRole);
+        userRepository.save(targetUser);
+    }
+
+    @Override
+    public void updateBlock(UpdateBlockRequest request) {
+        if (request.getUserId() == null) {
+            throw new IllegalArgumentException("Missing input");
+        }
+        String currentUserId = SecurityContextHolder.getContext().getAuthentication().getName();
+        Boolean isBlocked = request.getIsBlocked();
+        if (isBlocked == null) {
+            throw new IllegalArgumentException("Blocking must be true or false");
+        }
+
+        User currentUser = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new RuntimeException("Current user not found"));
+
+        if (!"admin".equals(currentUser.getRole())) {
+            throw new SecurityException("You are not admin");
+        }
+        User targetUser = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new RuntimeException("Target user not found"));
+
+        targetUser.setBlocked(isBlocked);
+        userRepository.save(targetUser);
     }
 
     private Object castValue(String value) {
