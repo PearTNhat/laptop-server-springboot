@@ -393,7 +393,7 @@ public class AuthControllerTest {
         void TCC032_final_registration_fails_when_OTP_length_is_less_than_required() throws Exception {
                 FinalRegisterRequest request = FinalRegisterRequest.builder()
                                 .email("test@example.com")
-                                .otp("12346") // OTP chỉ có 5 ký tự
+                                .otp("12345") // OTP chỉ có 6 ký tự
                                 .build();
 
                 ObjectMapper objectMapper = new ObjectMapper();

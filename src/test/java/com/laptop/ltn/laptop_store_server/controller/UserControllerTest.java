@@ -1,6 +1,7 @@
 package com.laptop.ltn.laptop_store_server.controller;
 
 import com.laptop.ltn.laptop_store_server.dto.response.UserResponse;
+import com.laptop.ltn.laptop_store_server.service.UserService;
 import com.laptop.ltn.laptop_store_server.service.UserServiceTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,7 +25,7 @@ public class UserControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private UserServiceTest userService;
+    private UserService userService;
 
     @Test
     @DisplayName("TCC-001: Get user info should return user info when authenticated")
