@@ -270,6 +270,13 @@ public class OrderImpl implements OrderService {
         return data;
     }
 
+    @Override
+    public void deleteOrder(String orderId) {
+        if (orderId == null || orderId.isBlank()) {
+            throw new IllegalArgumentException("Missing input");
+        }
+        orderRepository.deleteById(orderId);
+    }
     public String generateHmacSHA256(String data, String key) throws Exception {
 
         Mac sha256_HMAC = Mac.getInstance("HmacSHA256");

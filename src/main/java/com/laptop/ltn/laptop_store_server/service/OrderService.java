@@ -8,4 +8,5 @@ public interface OrderService {
     MoMoResponse createOrder(OrderRequest request);
     String callBackPayment(MomoRequest request);
     MoMoResponse transactionStatus(String orderId);
+    void deleteOrder(String orderId);
 }

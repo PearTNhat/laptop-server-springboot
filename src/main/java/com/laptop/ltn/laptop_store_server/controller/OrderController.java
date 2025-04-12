@@ -2,6 +2,7 @@ package com.laptop.ltn.laptop_store_server.controller;
 
 import com.laptop.ltn.laptop_store_server.dto.request.MomoRequest;
 import com.laptop.ltn.laptop_store_server.dto.request.OrderRequest;
+import com.laptop.ltn.laptop_store_server.dto.response.ApiResponse;
 import com.laptop.ltn.laptop_store_server.dto.response.MoMoResponse;
 import com.laptop.ltn.laptop_store_server.service.OrderService;
 import lombok.AccessLevel;
@@ -28,5 +29,13 @@ public class OrderController {
     @PostMapping("/payment/{orderId}")
     public ResponseEntity<MoMoResponse> createOrder(@PathVariable String orderId) {
         return ResponseEntity.ok(orderService.transactionStatus(orderId));
+    }
+
+    @DeleteMapping("/{orderId}")
+    public ApiResponse<Void> deleteOrder(@PathVariable String orderId) {
+        orderService.deleteOrder(orderId);
+        return ApiResponse.<Void>builder()
+                .message("Delete order successfully")
+                .build();
     }
 }
