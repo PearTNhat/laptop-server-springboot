@@ -217,7 +217,7 @@ public class UserServiceImpl implements UserService {
         }
 
         User currentUser = userRepository.findById(currentUserId)
-                .orElseThrow(() -> new RuntimeException("Current user not found"));
+                .orElseThrow(() -> new SecurityException("Current user not found"));
 
         if (!"admin".equals(currentUser.getRole())) {
             throw new SecurityException("You are not admin");

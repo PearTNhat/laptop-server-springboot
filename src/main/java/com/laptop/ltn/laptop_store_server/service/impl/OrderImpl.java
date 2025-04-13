@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class OrderImpl implements OrderService {
-    WebClient webClient = WebClient.create();
+    WebClient webClient;
     PaymentRepository paymentRepository;
     OrderRepository orderRepository;
     ProductRepository productRepository;

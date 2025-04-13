@@ -2,12 +2,18 @@ package com.laptop.ltn.laptop_store_server.service;
 
 import com.cloudinary.Cloudinary;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.laptop.ltn.laptop_store_server.dto.request.UpdateBlockRequest;
+import com.laptop.ltn.laptop_store_server.dto.request.UpdateRoleRequest;
 import com.laptop.ltn.laptop_store_server.dto.request.UserUpdateRequest;
+import com.laptop.ltn.laptop_store_server.dto.request.WishListRequest;
 import com.laptop.ltn.laptop_store_server.dto.response.UserResponse;
 import com.laptop.ltn.laptop_store_server.entity.Image;
+import com.laptop.ltn.laptop_store_server.entity.Product;
 import com.laptop.ltn.laptop_store_server.entity.User;
+import com.laptop.ltn.laptop_store_server.entity.WishListItem;
 import com.laptop.ltn.laptop_store_server.exception.ErrorCode;
 import com.laptop.ltn.laptop_store_server.mapper.UserMapper;
+import com.laptop.ltn.laptop_store_server.repository.ProductRepository;
 import com.laptop.ltn.laptop_store_server.repository.UserRepository;
 import com.laptop.ltn.laptop_store_server.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +35,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -52,7 +59,8 @@ public class UserServiceTest {
     UploadImageFile uploadImageFile;
     @Mock
     Cloudinary cloudinary;
-
+    @Mock
+    ProductRepository productRepository;
     User user;
     UserResponse userResponse;
 
@@ -77,6 +85,7 @@ public class UserServiceTest {
         SecurityContext securityContext = mock(SecurityContext.class);
         when(securityContext.getAuthentication()).thenReturn(auth);
         SecurityContextHolder.setContext(securityContext);
+
     }
     @Test
     void getUserInfo_ShouldReturnUserResponse_WhenUserExists() {
@@ -134,32 +143,155 @@ public class UserServiceTest {
         assertEquals("john@example.com", result.getEmail());
         verify(userRepository).save(any());
     }
-//    @Test
-//    void updateUser_ShouldUploadImageAndDeleteOld_WhenFilePresent() throws Exception {
-//        String userId = "user123";
-//        String json = "{\"firstName\":\"Updated\"}";
-//        MultipartFile file = mock(MultipartFile.class);
-//        when(file.isEmpty()).thenReturn(false);
-//
-//        Map<String, Object> uploadRes = Map.of("url", "image.jpg", "public_id", "img123");
-//        User user = User.builder()._id(userId).avatar(Image.builder().public_id("oldImg").build()).build();
-//        UserResponse response = UserResponse.builder()._id(userId).firstName("Updated").build();
-//
-//        // ✅ FIXED: mock full Authentication
-//        Authentication auth = mock(Authentication.class);
-//        when(auth.getName()).thenReturn(userId);
-//        SecurityContext securityContext = mock(SecurityContext.class);
-//        when(securityContext.getAuthentication()).thenReturn(auth);
-//        SecurityContextHolder.setContext(securityContext);
-//
-//        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-//        when(uploadImageFile.uploadImageFile(file)).thenReturn(uploadRes);
-//        when(userRepository.save(any(User.class))).thenReturn(user);
-//        when(userMapper.toUserResponse(user)).thenReturn(response);
-//
-//        UserResponse result = userService.updateUser(json, file);
-//
-//        assertEquals("Updated", result.getFirstName());
-//        assertEquals("image.jpg", user.getAvatar().getUrl());
-//    }
+    @Test
+    void updateWishlist_shouldThrowException_whenProductIdIsNull() {
+        WishListRequest request = WishListRequest.builder().product(null).build();
+
+        assertThrows(IllegalArgumentException.class, () -> userService.updateWishlist(request));
+    }
+
+    @Test
+    void updateWishlist_shouldRemoveProductIfExists() {
+        String productId = "product123";
+        WishListRequest request = WishListRequest.builder().product(productId).build();
+
+        Product product = Product.builder()._id(productId).build();
+        WishListItem item = new WishListItem(product);
+
+        User user = new User();
+        user.set_id("123");
+        user.setWishlist(new ArrayList<>(List.of(item)));
+
+        when(userRepository.findById("123")).thenReturn(Optional.of(user));
+
+        userService.updateWishlist(request);
+
+        assertTrue(user.getWishlist().isEmpty());
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    void updateWishlist_shouldAddProductIfNotExists() {
+        String productId = "product123";
+        WishListRequest request = WishListRequest.builder().product(productId).build();
+
+        User user = new User();
+        user.set_id("123");
+        user.setWishlist(new ArrayList<>());
+
+        Product product = Product.builder()._id(productId).build();
+
+        when(userRepository.findById("123")).thenReturn(Optional.of(user));
+        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+
+        userService.updateWishlist(request);
+
+        assertEquals(1, user.getWishlist().size());
+        verify(userRepository).save(user);
+    }
+    @Test
+    void updateRole_shouldThrow_whenRoleOrUserIdMissing() {
+        assertThrows(IllegalArgumentException.class,
+                () -> userService.updateRole(UpdateRoleRequest.builder().role("admin").build()));
+    }
+
+    @Test
+    void updateRole_shouldThrow_whenInvalidRole() {
+        UpdateRoleRequest request = UpdateRoleRequest.builder()
+                .userId("targetId")
+                .role("admin")
+                .build();
+
+        assertThrows(RuntimeException.class, () -> userService.updateRole(request));
+    }
+
+    @Test
+    void updateRole_shouldThrow_whenCurrentUserIsNotAdmin() {
+        User currentUser = new User();
+        currentUser.setRole("user");
+
+        when(userRepository.findById("currentUserId")).thenReturn(Optional.of(currentUser));
+
+        UpdateRoleRequest request = UpdateRoleRequest.builder()
+                .userId("targetId")
+                .role("admin")
+                .build();
+
+        assertThrows(RuntimeException.class, () -> userService.updateRole(request));
+    }
+
+    @Test
+    void updateRole_shouldUpdateSuccessfully() {
+        User currentUser = new User();
+        currentUser.set_id("123");
+        currentUser.setRole("admin");
+
+        User targetUser = new User();
+        targetUser.set_id("targetId");
+
+        when(userRepository.findById("123")).thenReturn(Optional.of(currentUser));
+        when(userRepository.findById("targetId")).thenReturn(Optional.of(targetUser));
+
+        UpdateRoleRequest request = UpdateRoleRequest.builder()
+                .userId("targetId")
+                .role("user")
+                .build();
+
+        userService.updateRole(request);
+
+        assertEquals("user", targetUser.getRole());
+        verify(userRepository).save(targetUser);
+    }
+
+    @Test
+    void updateBlock_shouldThrow_whenUserIdMissing() {
+        UpdateBlockRequest request = UpdateBlockRequest.builder().userId(null).isBlocked(true).build();
+
+        assertThrows(IllegalArgumentException.class, () -> userService.updateBlock(request));
+    }
+
+    @Test
+    void updateBlock_shouldThrow_whenIsBlockedNull() {
+        UpdateBlockRequest request = UpdateBlockRequest.builder().userId("targetId").isBlocked(null).build();
+
+        assertThrows(IllegalArgumentException.class, () -> userService.updateBlock(request));
+    }
+
+    @Test
+    void updateBlock_shouldThrow_whenNotAdmin() {
+        User currentUser = new User();
+        currentUser.setRole("user");
+
+        when(userRepository.findById("currentUserId")).thenReturn(Optional.of(currentUser));
+
+        UpdateBlockRequest request = UpdateBlockRequest.builder()
+                .userId("targetId")
+                .isBlocked(true)
+                .build();
+
+        assertThrows(SecurityException.class, () -> userService.updateBlock(request));
+    }
+
+    @Test
+    void updateBlock_shouldUpdateSuccessfully() {
+        User currentUser = new User();
+        currentUser.setRole("admin");
+
+        User targetUser = new User();
+
+        when(userRepository.findById("123")).thenReturn(Optional.of(currentUser));
+        when(userRepository.findById("targetId")).thenReturn(Optional.of(targetUser));
+
+        UpdateBlockRequest request = UpdateBlockRequest.builder()
+                .userId("targetId")
+                .isBlocked(true)
+                .build();
+
+        userService.updateBlock(request);
+
+        assertTrue(targetUser.isBlocked());
+        verify(userRepository).save(targetUser);
+    }
+
+
 }

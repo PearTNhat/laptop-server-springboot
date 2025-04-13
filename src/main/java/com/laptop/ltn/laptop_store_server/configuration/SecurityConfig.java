@@ -87,4 +87,8 @@ public class SecurityConfig {
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(10);
     }
+    @Bean
+    public WebClient webClient() {
+        return WebClient.builder().build();
+    }
 }

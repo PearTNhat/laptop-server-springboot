@@ -1,5 +1,9 @@
 package com.laptop.ltn.laptop_store_server.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.laptop.ltn.laptop_store_server.dto.request.UpdateBlockRequest;
+import com.laptop.ltn.laptop_store_server.dto.request.UpdateRoleRequest;
+import com.laptop.ltn.laptop_store_server.dto.request.WishListRequest;
 import com.laptop.ltn.laptop_store_server.dto.response.UserResponse;
 import com.laptop.ltn.laptop_store_server.service.UserService;
 import com.laptop.ltn.laptop_store_server.service.UserServiceTest;
@@ -17,6 +21,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
@@ -26,6 +36,9 @@ public class UserControllerTest {
 
     @MockBean
     private UserService userService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
     @DisplayName("TCC-001: Get user info should return user info when authenticated")
@@ -43,11 +56,57 @@ public class UserControllerTest {
         // Thực hiện yêu cầu GET và kiểm tra kết quả, với token trong header
         mockMvc.perform(MockMvcRequestBuilders.get("/user/info")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk()) // Kiểm tra trạng thái HTTP là 200 OK
-                .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(true))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data._id").value("123"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data.firstName").value("John"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data.lastName").value("Doe"));
+                .andExpect(status().isOk()) // Kiểm tra trạng thái HTTP là 200 OK
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data._id").value("123"))
+                .andExpect(jsonPath("$.data.firstName").value("John"))
+                .andExpect(jsonPath("$.data.lastName").value("Doe"));
+    }
+    @Test
+    void testUpdateWishlist() throws Exception {
+        WishListRequest request = WishListRequest.builder()
+                .product("product123")
+                .build();
+
+        mockMvc.perform(put("/user/wish-list")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Update wishlist successfully"));
+
+        verify(userService).updateWishlist(any(WishListRequest.class));
+    }
+
+    @Test
+    void testUpdateUserByAdmin() throws Exception {
+        UpdateRoleRequest request = UpdateRoleRequest.builder()
+                .userId("user123")
+                .role("admin")
+                .build();
+
+        mockMvc.perform(put("/user//admin")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Update user successfully"));
+
+        verify(userService).updateRole(any(UpdateRoleRequest.class));
+    }
+
+    @Test
+    void testBlockUser() throws Exception {
+        UpdateBlockRequest request = UpdateBlockRequest.builder()
+                .userId("user123")
+                .isBlocked(true)
+                .build();
+
+        mockMvc.perform(put("/user//admin/block")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Block user successfully"));
+
+        verify(userService).updateBlock(any(UpdateBlockRequest.class));
     }
 
 }
