@@ -13,15 +13,18 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 
-public class Login {
+public class LoginTest {
     WebDriver driver;
+    WebDriverWait wait;
 
     @BeforeEach
     void setUp() {
         driver = new ChromeDriver();
         driver.get("https://laptop-ltn105-store.vercel.app/login");
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         System.out.println("Before each test");
     }
+
     @Test
     void login_sucess() {
         // Tìm các field đăng nhập
@@ -42,6 +45,7 @@ public class Login {
         // Kiểm tra xem phần tử có hiển thị không và có chứa chữ "Thoát" không
         Assertions.assertTrue(welcome.getText().toLowerCase().contains("welcome"), "Đăng nhập thất bại");
     }
+
     @Test
     void login_failed_password() {
         // Tìm các field đăng nhập
@@ -58,10 +62,10 @@ public class Login {
         WebElement swal2 = wait.until(ExpectedConditions.visibilityOfElementLocated(
                 By.cssSelector("#swal2-html-container")
         ));
-
         // Kiểm tra xem phần tử có hiển thị không và có chứa chữ "Thoát" không
         Assertions.assertTrue(swal2.getText().equalsIgnoreCase("Email or password are not exist"));
     }
+
     @Test
     void login_failed_email() {
         // Tìm các field đăng nhập
@@ -71,7 +75,6 @@ public class Login {
         // Nhập thông tin đăng nhập
         emailField.sendKeys("letuannhat105x@gmail.com");
         passwordField.sendKeys("123456");
-
         // Nhấn nút đăng nhập
         loginButton.click();
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
@@ -82,6 +85,7 @@ public class Login {
         // Kiểm tra xem phần tử có hiển thị không và có chứa chữ "Thoát" không
         Assertions.assertTrue(swal2.getText().equalsIgnoreCase("Email or password are not exist"));
     }
+
     @Test
     void login_email_and_password_null() {
         // Tìm các field đăng nhập
@@ -94,7 +98,7 @@ public class Login {
 
         // Nhấn nút đăng nhập
         loginButton.click();
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
         WebElement emailError = wait.until(ExpectedConditions.visibilityOfElementLocated(
                 By.cssSelector("#root > div > div > div.relative > div.flex.justify-center.items-center.my-16 > form > div:nth-child(2) > small")
         ));
@@ -107,6 +111,7 @@ public class Login {
         Assertions.assertTrue(passwordError.getText().equalsIgnoreCase("Password is required"));
 
     }
+
     @AfterEach
     void tearDown() {
         driver.quit();
