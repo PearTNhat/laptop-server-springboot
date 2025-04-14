@@ -224,8 +224,8 @@ public class UserServiceImpl implements UserService {
         }
         User targetUser = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("Target user not found"));
-
         targetUser.setBlocked(isBlocked);
+        System.out.println(isBlocked);
         userRepository.save(targetUser);
     }
 

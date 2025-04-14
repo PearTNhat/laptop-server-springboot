@@ -38,16 +38,19 @@ public class UserController {
                 .build();
     }
 
-    @GetMapping
+    @GetMapping("/get-users")
     public ResponseEntity<Map<String, Object>> getAllUser(
             @RequestParam Map<String, String> queryParams,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit,
             @RequestParam(required = false) String sort
     ) {
-        Pageable pageable = PageRequest.of(page, limit, Sort.by(Sort.Direction.ASC, "id"));
+        // Điều chỉnh page về zero-based (trừ 1 nếu page >= 1)
+        int adjustedPage = page >= 1 ? page - 1 : 0;
+
+        Pageable pageable = PageRequest.of(adjustedPage, limit, Sort.by(Sort.Direction.ASC, "id"));
         if (sort != null) {
-            pageable = PageRequest.of(page, limit, Sort.by(sort.split(",")));
+            pageable = PageRequest.of(adjustedPage, limit, Sort.by(sort.split(",")));
         }
 
         Page<User> users = userService.findAllWithFilters(queryParams, pageable);
@@ -60,10 +63,10 @@ public class UserController {
 
     }
 
-    @PostMapping
+    @PutMapping
     public ApiResponse<UserResponse> updateUser(
             @RequestParam("document") String documentJson,
-            @RequestPart(value = "file", required = false) MultipartFile file
+            @RequestPart(value = "avatar", required = false) MultipartFile file
     ) {
         return ApiResponse.<UserResponse>builder()
                 .data(userService.updateUser(documentJson, file))
