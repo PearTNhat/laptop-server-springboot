@@ -21,46 +21,30 @@ public class ProductController {
     ProductService productService;
 
     /**
-     * Get a single product by ID
-     * 
-     * @param id The product ID
-     * @return The product if found, or 404 if not found
-     */
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getProductById(@PathVariable String id) {
-        try {
-            Optional<Product> product = productService.findById(id);
-            if (product.isPresent()) {
-                return ResponseEntity.ok(product.get());
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("message", "Product not found with id: " + id));
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", "Error retrieving product: " + e.getMessage()));
-        }
-    }
-
-    /**
      * Get a single product by slug
      * 
      * @param slug The product slug
      * @return The product if found, or 404 if not found
      */
-    @GetMapping("/slug/{slug}")
+    @GetMapping("/{slug}")
     public ResponseEntity<?> getProductBySlug(@PathVariable String slug) {
         try {
             Optional<Product> product = productService.findBySlug(slug);
             if (product.isPresent()) {
-                return ResponseEntity.ok(product.get());
+                return ResponseEntity.ok(Map.of(
+                        "success", true,
+                        "data", product.get()));
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("message", "Product not found with slug: " + slug));
+                        .body(Map.of(
+                                "success", false,
+                                "message", "Product not found with slug: " + slug));
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", "Error retrieving product: " + e.getMessage()));
+                    .body(Map.of(
+                            "success", false,
+                            "message", "Error retrieving product: " + e.getMessage()));
         }
     }
 
