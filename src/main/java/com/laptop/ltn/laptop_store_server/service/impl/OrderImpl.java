@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.laptop.ltn.laptop_store_server.dto.request.MomoRequest;
 import com.laptop.ltn.laptop_store_server.dto.request.OrderProductRequest;
 import com.laptop.ltn.laptop_store_server.dto.request.OrderRequest;
+import com.laptop.ltn.laptop_store_server.dto.request.UpdateOrderInfoRequest;
+import com.laptop.ltn.laptop_store_server.dto.request.UpdateOrderProductStatusRequest;
 import com.laptop.ltn.laptop_store_server.dto.response.MoMoResponse;
 import com.laptop.ltn.laptop_store_server.entity.*;
 import com.laptop.ltn.laptop_store_server.repository.OrderRepository;
@@ -19,6 +21,9 @@ import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.utils.Hex;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -86,13 +91,7 @@ public class OrderImpl implements OrderService {
         String extraData = createExtraData(products, total, address, phone, name, orderBy);
         String rawSignature = "accessKey=" + accessKey + "&amount=" + total + "&extraData=" + extraData + "&ipnUrl=" + ipnUrl + "&orderId=" + orderId + "&orderInfo=" + orderInfo + "&partnerCode=" + partnerCode + "&redirectUrl=" + redirectUrl + "&requestId=" + requestId + "&requestType=" + requestType;
         String prettySignature = "";
-        System.out.println("total: " + total);
-        System.out.println("phone: " + phone);
-        System.out.println("address: " + address);
-        System.out.println("name: " + name);
-        System.out.println("orderBy: " + orderBy);
-        System.out.println("products: " + products.size());
-        System.out.println("extraData " + extraData);
+
         try {
             prettySignature = generateHmacSHA256(rawSignature, secretKey);
         } catch (Exception e) {
@@ -282,6 +281,108 @@ public class OrderImpl implements OrderService {
         }
         orderRepository.deleteById(orderId);
     }
+
+    @Override
+    public Page<Order> getAllOrders(Map<String, String> params, Pageable pageable) {
+        String userId = null;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // Check if request is for specific user's orders
+        if (params.containsKey("userId")) {
+            userId = params.get("userId");
+        } else {
+            // If no userId specified, get current authenticated user
+            if (authentication != null && authentication.isAuthenticated() &&
+                    !authentication.getPrincipal().equals("anonymousUser")) {
+                userId = authentication.getName();
+            }
+        }
+
+        // If admin user and no userId specified, return all orders
+        if (userId == null) {
+            if (authentication == null) {
+                throw new SecurityException("Authentication required");
+            }
+
+            User currentUser = userRepository.findById(authentication.getName())
+                    .orElseThrow(() -> new SecurityException("User not found"));
+
+            if (!"admin".equals(currentUser.getRole())) {
+                throw new SecurityException("Unauthorized access");
+            }
+
+            return orderRepository.findAll(pageable);
+        }
+
+        // Find the user
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        // Return orders for that user
+        return orderRepository.findByOrderBy(user, pageable);
+    }
+
+    @Override
+    public Order updateOrderProductStatus(UpdateOrderProductStatusRequest request) {
+        if (request.getOrderId() == null || request.getProductId() == null || request.getStatus() == null) {
+            throw new IllegalArgumentException("Order ID, Product ID, and Status are required");
+        }
+
+        // Check if status is valid
+        if (request.getStatus() < -1 || request.getStatus() > 1) {
+            throw new IllegalArgumentException(
+                    "Invalid status value. Must be -1 (Cancelled), 0 (Pending), or 1 (Confirmed)");
+        }
+
+        // Find the order
+        Order order = orderRepository.findById(request.getOrderId())
+                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+
+        boolean productFound = false;
+        // Update the status of the specified product
+        for (OrderProduct orderProduct : order.getProducts()) {
+            if (orderProduct.getProduct().get_id().equals(request.getProductId())) {
+                orderProduct.setStatus(request.getStatus());
+                productFound = true;
+                break;
+            }
+        }
+
+        if (!productFound) {
+            throw new IllegalArgumentException("Product not found in this order");
+        }
+
+        // Save the updated order
+        return orderRepository.save(order);
+    }
+
+    @Override
+    public Order updateOrderInfo(String orderId, UpdateOrderInfoRequest request) {
+        if (orderId == null) {
+            throw new IllegalArgumentException("Order ID is required");
+        }
+
+        // Find the order
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+
+        // Update order information
+        if (request.getAddress() != null) {
+            order.setAddress(request.getAddress());
+        }
+
+        if (request.getPhone() != null) {
+            order.setPhone(request.getPhone());
+        }
+
+        if (request.getName() != null) {
+            order.setName(request.getName());
+        }
+
+        // Save the updated order
+        return orderRepository.save(order);
+    }
+
     public String generateHmacSHA256(String data, String key) throws Exception {
 
         Mac sha256_HMAC = Mac.getInstance("HmacSHA256");

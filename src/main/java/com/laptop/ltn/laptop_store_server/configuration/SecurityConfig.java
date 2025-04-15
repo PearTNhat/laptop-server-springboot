@@ -29,7 +29,7 @@ import java.util.concurrent.ScheduledExecutorService;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-    private final String[] GET_METHODS = { "user/info", };
+    private final String[] GET_METHODS = { "user/info" };
     private final String[] PUT_METHODS = { "user" };
     private final String[] POST_METHODS = { "sendMail", "sendMailWithAttachment" };
     private final String[] AUTHENTICATED_ENDPOINTS = { "cart/**" };

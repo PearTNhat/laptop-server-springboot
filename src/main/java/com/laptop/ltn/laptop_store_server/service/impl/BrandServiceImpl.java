@@ -55,4 +55,9 @@ public class BrandServiceImpl implements BrandService {
         }
         return false;
     }
+
+    @Override
+    public Optional<Brand> getBrandById(String id) {
+        return brandRepository.findById(id);
+    }
 }

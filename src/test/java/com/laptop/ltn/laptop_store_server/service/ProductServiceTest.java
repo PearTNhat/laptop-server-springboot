@@ -1,5 +1,6 @@
 package com.laptop.ltn.laptop_store_server.service;
 
+import com.laptop.ltn.laptop_store_server.entity.Image;
 import com.laptop.ltn.laptop_store_server.entity.Product;
 import com.laptop.ltn.laptop_store_server.repository.ProductRepository;
 import com.laptop.ltn.laptop_store_server.service.impl.ProductServiceImpl;
@@ -13,11 +14,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -37,6 +42,9 @@ public class ProductServiceTest {
     @Mock
     private MongoTemplate mongoTemplate;
 
+    @Mock
+    private UploadImageFile uploadImageFile;
+
     @InjectMocks
     private ProductServiceImpl productServiceImpl;
 
@@ -44,6 +52,7 @@ public class ProductServiceTest {
     private ProductService productService;
 
     private Product testProduct;
+    private MultipartFile testImage;
 
     @BeforeEach
     void setUp() {
@@ -58,6 +67,13 @@ public class ProductServiceTest {
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
+
+        // Create a mock image file for testing
+        testImage = new MockMultipartFile(
+                "primaryImage",
+                "test-image.jpg",
+                "image/jpeg",
+                "test image content".getBytes());
 
         // Set the implementation to the interface reference
         productService = productServiceImpl;
@@ -126,23 +142,71 @@ public class ProductServiceTest {
 
     @Test
     @DisplayName("TCS-004: Create product should set timestamps and save")
-    void TCS004_createProduct_ShouldSetTimestampsAndSave() {
+    void TCS004_createProduct_ShouldSetTimestampsAndSave() throws IOException {
         // Arrange
         logger.info("Testing createProduct");
+        Product newProduct = Product.builder()
+                .title("New Laptop")
+                .build();
+
+        // Mock the image upload response
+        Map<String, Object> uploadResult = new HashMap<>();
+        uploadResult.put("url", "https://example.com/test-image.jpg");
+        uploadResult.put("public_id", "test_public_id");
+        when(uploadImageFile.uploadImageFile(any(MultipartFile.class))).thenReturn(uploadResult);
+
+        // Set up product to be returned after save
+        Product savedProduct = Product.builder()
+                .title("New Laptop")
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .primaryImage(Image.builder()
+                        .url("https://example.com/test-image.jpg")
+                        .public_id("test_public_id")
+                        .build())
+                .build();
+        when(productRepository.save(any(Product.class))).thenReturn(savedProduct);
+
+        // Act
+        logger.debug("Executing productService.createProduct with image");
+        Product result = productService.createProduct(newProduct, testImage);
+
+        // Assert
+        logger.info("Verifying createProduct test results");
+        assertNotNull(result.getCreatedAt(), "CreatedAt should not be null");
+        assertNotNull(result.getUpdatedAt(), "UpdatedAt should not be null");
+        assertNotNull(result.getPrimaryImage(), "PrimaryImage should not be null");
+        assertEquals("https://example.com/test-image.jpg", result.getPrimaryImage().getUrl(), "Image URL should match");
+        verify(uploadImageFile).uploadImageFile(any(MultipartFile.class));
+        verify(productRepository).save(any(Product.class));
+        logger.debug("createProduct test completed successfully");
+    }
+
+    @Test
+    @DisplayName("TCS-004.1: Create product without image should still save")
+    void TCS004_1_createProduct_WithoutImage_ShouldStillSave() {
+        // Arrange
+        logger.info("Testing createProduct without image");
         Product newProduct = Product.builder()
                 .title("New Laptop")
                 .build();
         when(productRepository.save(any(Product.class))).thenReturn(testProduct);
 
         // Act
-        logger.debug("Executing productService.createProduct");
-        Product result = productService.createProduct(newProduct);
+        logger.debug("Executing productService.createProduct without image");
+        Product result = productService.createProduct(newProduct, null);
 
         // Assert
         logger.info("Verifying createProduct test results");
         assertNotNull(result.getCreatedAt(), "CreatedAt should not be null");
         assertNotNull(result.getUpdatedAt(), "UpdatedAt should not be null");
         verify(productRepository).save(any(Product.class));
+        try {
+            verify(uploadImageFile, never()).uploadImageFile(any(MultipartFile.class));
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         logger.debug("createProduct test completed successfully");
     }
 
