@@ -12,5 +12,4 @@ public interface UserRepository extends MongoRepository<User, String> {
     User findByEmailRegex(String emailRegex);
 
     Boolean deleteByEmail(String email);
-
 }

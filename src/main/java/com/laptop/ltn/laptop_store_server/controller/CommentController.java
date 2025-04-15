@@ -2,51 +2,77 @@ package com.laptop.ltn.laptop_store_server.controller;
 
 import com.laptop.ltn.laptop_store_server.entity.Comment;
 import com.laptop.ltn.laptop_store_server.service.CommentService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/comment")
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CommentController {
-
-    @Autowired
-    private CommentService commentService;
+    CommentService commentService;
 
     @PostMapping
-    public Comment createComment(@RequestBody CommentRequest commentRequest) {
-        return commentService.createComment(commentRequest.getProductId(), commentRequest.getRating(), commentRequest.getContent());
+    public ResponseEntity<Map<String, Object>> createComment(
+            @AuthenticationPrincipal Jwt jwt,
+            @RequestBody Map<String, Object> request) {
+        Map<String, Object> response = new HashMap<>();
+        Comment comment = null;
+
+        String userId = jwt.getSubject();
+        comment = commentService.createComment(userId, request);
+        response.put("success", true);
+        response.put("data", comment);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{commentId}")
-    public Comment updateComment(@PathVariable String commentId, @RequestBody CommentRequest commentRequest) {
-        return commentService.updateComment(commentId, commentRequest.getRating(), commentRequest.getContent());
+    public ResponseEntity<Map<String, Object>> updateComment(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable String commentId,
+            @RequestBody Map<String, String> request) {
+        Map<String, Object> response = new HashMap<>();
+        Comment updatedComment = null;
+
+        String userId = jwt.getSubject();
+        updatedComment = commentService.updateComment(commentId, userId, request.get("content"), Integer.valueOf(request.get("rating")));
+        response.put("success", true);
+        response.put("data", updatedComment);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{commentId}")
-    public void deleteComment(@PathVariable String commentId) {
-        commentService.deleteComment(commentId);
+    public ResponseEntity<Map<String, Object>> deleteComment(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable String commentId) {
+        Map<String, Object> response = new HashMap<>();
+
+        String userId = jwt.getSubject();
+        commentService.deleteComment(commentId, userId);
+        response.put("success", true);
+        response.put("message", "Comment deleted successfully");
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/{commentId}/like")
-    public Comment likeComment(@PathVariable String commentId) {
-        return commentService.likeComment(commentId);
+    public ResponseEntity<Map<String, Object>> likeComment(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable String commentId) {
+        Map<String, Object> response = new HashMap<>();
+
+        String userId = jwt.getSubject();
+        commentService.likeComment(commentId, userId);
+        response.put("success", true);
+        response.put("message", "Comment liked successfully");
+        return ResponseEntity.ok(response);
     }
-
-    @PostMapping("/{commentId}/dislike")
-    public Comment dislikeComment(@PathVariable String commentId) {
-        return commentService.dislikeComment(commentId);
-    }
-}
-
-class CommentRequest {
-    private String productId;
-    private Integer rating;
-    private String content;
-
-    public String getProductId() { return productId; }
-    public void setProductId(String productId) { this.productId = productId; }
-    public Integer getRating() { return rating; }
-    public void setRating(Integer rating) { this.rating = rating; }
-    public String getContent() { return content; }
-    public void setContent(String content) { this.content = content; }
 }

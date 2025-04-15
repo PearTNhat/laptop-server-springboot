@@ -1,19 +1,16 @@
 package com.laptop.ltn.laptop_store_server.service;
 
 import com.laptop.ltn.laptop_store_server.entity.Brand;
-import com.laptop.ltn.laptop_store_server.repository.BrandRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
-@Service
-public class BrandService {
+public interface BrandService {
+    List<Brand> getAllBrands();
 
-    @Autowired
-    private BrandRepository brandRepository;
+    Brand createBrand(Brand brand);
 
-    public List<Brand> getAllBrands() {
-        return brandRepository.findAll();
-    }
+    Optional<Brand> updateBrand(String id, Brand brand);
+
+    boolean deleteBrand(String id);
 }
