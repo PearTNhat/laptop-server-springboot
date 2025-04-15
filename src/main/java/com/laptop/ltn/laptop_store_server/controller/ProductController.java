@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference; // Import TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper; // Import ObjectMapper
 import com.laptop.ltn.laptop_store_server.entity.Product;
 import com.laptop.ltn.laptop_store_server.entity.Configs; // Import Configs if needed for manual mapping
+import com.laptop.ltn.laptop_store_server.entity.ColorVariant; // Import ColorVariant
 import com.laptop.ltn.laptop_store_server.service.ProductService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -13,13 +14,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList; // Import ArrayList
 import java.util.Collections; // Import Collections
 import java.util.List; // Import List
 import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/product")
+@RequestMapping("/product") // Update base path to include /api
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ProductController {
@@ -253,6 +255,60 @@ public class ProductController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", "Error searching products: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Add a color variant to an existing product
+     *
+     * @param slug         The product slug to update
+     * @param documentJson JSON string containing color variant data
+     * @param primaryImage Optional primary image file for the color variant
+     * @return The updated product or error response
+     */
+    @PostMapping(value = "/create-color/{slug}", consumes = "multipart/form-data") // Update path to match expected URL
+    public ResponseEntity<?> addColorVariant(
+            @PathVariable String slug,
+            @RequestPart("document") String documentJson,
+            @RequestPart(value = "primaryImage", required = false) MultipartFile primaryImage) {
+        try {
+            // Deserialize the JSON string into a Map
+            Map<String, Object> variantMap = objectMapper.readValue(documentJson,
+                    new TypeReference<Map<String, Object>>() {
+                    });
+
+            // Create and populate the ColorVariant object
+            ColorVariant colorVariant = new ColorVariant();
+            colorVariant.setColor((String) variantMap.get("color"));
+
+            // Handle quantity conversion
+            Object quantityObj = variantMap.get("quantity");
+            if (quantityObj instanceof Number) {
+                colorVariant.setQuantity(((Number) quantityObj).intValue());
+            } else if (quantityObj instanceof String) {
+                try {
+                    colorVariant.setQuantity(Integer.parseInt((String) quantityObj));
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("Invalid format for quantity: " + quantityObj);
+                }
+            }
+
+            // Initialize with default values
+            colorVariant.setSoldQuantity(0);
+            colorVariant.setImages(new ArrayList<>());
+
+            // Call the service method with slug instead of ID
+            Product updatedProduct = productService.addColorVariantBySlug(slug, colorVariant, primaryImage);
+
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "Color variant added successfully",
+                    "data", updatedProduct));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of(
+                            "success", false,
+                            "message", "Error adding color variant: " + e.getMessage()));
         }
     }
 }

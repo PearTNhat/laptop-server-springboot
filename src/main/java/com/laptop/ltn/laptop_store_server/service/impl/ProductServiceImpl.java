@@ -3,6 +3,7 @@ package com.laptop.ltn.laptop_store_server.service.impl;
 import com.laptop.ltn.laptop_store_server.entity.Product;
 import com.laptop.ltn.laptop_store_server.entity.Image;
 import com.laptop.ltn.laptop_store_server.entity.Series;
+import com.laptop.ltn.laptop_store_server.entity.ColorVariant;
 import com.laptop.ltn.laptop_store_server.exception.CustomException;
 import com.laptop.ltn.laptop_store_server.exception.ErrorCode;
 import com.laptop.ltn.laptop_store_server.repository.ProductRepository;
@@ -22,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -272,5 +274,74 @@ public class ProductServiceImpl implements ProductService {
         response.put("totalPages", (int) Math.ceil((double) total / size));
 
         return response;
+    }
+
+    /**
+     * Add a color variant to a product by slug
+     */
+    @Override
+    public Product addColorVariantBySlug(String slug, ColorVariant colorVariant, MultipartFile primaryImage) {
+        // Find the product by slug
+        Optional<Product> optionalProduct = productRepository.findBySlug(slug);
+        if (optionalProduct.isEmpty()) {
+            throw new RuntimeException("Product not found with slug: " + slug);
+        }
+
+        Product product = optionalProduct.get();
+
+        // Initialize colors list if null
+        if (product.getColors() == null) {
+            product.setColors(new ArrayList<>());
+        }
+
+        // Check if color already exists
+        boolean colorExists = product.getColors().stream()
+                .anyMatch(c -> c.getColor().equalsIgnoreCase(colorVariant.getColor()));
+        if (colorExists) {
+            throw new RuntimeException("Color variant already exists for this product");
+        }
+
+        // Set timestamps for update
+        LocalDateTime now = LocalDateTime.now();
+        product.setUpdatedAt(now);
+
+        // Process primary image if provided
+        if (primaryImage != null && !primaryImage.isEmpty()) {
+            try {
+                Map uploadResult = uploadImageFile.uploadImageFile(primaryImage);
+
+                Image image = Image.builder()
+                        .public_id((String) uploadResult.get("public_id"))
+                        .url((String) uploadResult.get("url"))
+                        .build();
+
+                colorVariant.setPrimaryImage(image);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to upload primary image", e);
+            }
+        } else {
+            colorVariant.setPrimaryImage(null);
+        }
+
+        // Initialize images list if needed
+        if (colorVariant.getImages() == null) {
+            colorVariant.setImages(new ArrayList<>());
+        }
+
+        // Set default values for non-initialized fields
+        if (colorVariant.getSoldQuantity() == null) {
+            colorVariant.setSoldQuantity(0);
+        }
+
+        // Add the color variant to the product
+        product.getColors().add(colorVariant);
+
+        // Update the total product quantity by adding the new color variant quantity
+        int existingQuantity = product.getQuantity() != null ? product.getQuantity() : 0;
+        int variantQuantity = colorVariant.getQuantity() != null ? colorVariant.getQuantity() : 0;
+        product.setQuantity(existingQuantity + variantQuantity);
+
+        // Save and return the updated product
+        return productRepository.save(product);
     }
 }

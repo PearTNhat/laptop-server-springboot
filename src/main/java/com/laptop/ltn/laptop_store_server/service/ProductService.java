@@ -1,6 +1,7 @@
 package com.laptop.ltn.laptop_store_server.service;
 
 import com.laptop.ltn.laptop_store_server.entity.Product;
+import com.laptop.ltn.laptop_store_server.entity.ColorVariant;
 
 import java.util.Map;
 import java.util.Optional;
@@ -22,4 +23,6 @@ public interface ProductService {
     boolean deleteProduct(String id);
 
     Map<String, Object> searchProducts(String keyword, int page, int size);
+
+    Product addColorVariantBySlug(String slug, ColorVariant colorVariant, MultipartFile primaryImage);
 }
