@@ -8,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 import java.util.Optional;
@@ -90,10 +91,12 @@ public class ProductController {
      * @param product The product data to create
      * @return The created product
      */
-    @PostMapping
-    public ResponseEntity<?> createProduct(@RequestBody Product product) {
+    @PostMapping(consumes = "multipart/form-data")
+    public ResponseEntity<?> createProduct(
+            @RequestPart("product") Product product,
+            @RequestPart(value = "primaryImage") MultipartFile primaryImage) {
         try {
-            Product createdProduct = productService.createProduct(product);
+            Product createdProduct = productService.createProduct(product, primaryImage);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

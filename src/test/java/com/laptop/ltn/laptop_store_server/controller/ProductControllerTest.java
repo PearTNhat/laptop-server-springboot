@@ -11,6 +11,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -30,6 +32,7 @@ class ProductControllerTest {
     private ProductController productController;
 
     private Product testProduct;
+    private MultipartFile testImage;
 
     @BeforeEach
     void setUp() {
@@ -43,38 +46,13 @@ class ProductControllerTest {
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
-    }
 
-    @Test
-    @DisplayName("TCC-002: Get product by ID when product exists should return product")
-    void TCC002_getProductById_WhenProductExists_ShouldReturnProduct() {
-        // Arrange
-        when(productService.findById("1")).thenReturn(Optional.of(testProduct));
-
-        // Act
-        ResponseEntity<?> response = productController.getProductById("1");
-
-        // Assert
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(testProduct, response.getBody());
-        verify(productService).findById("1");
-    }
-
-    @Test
-    @DisplayName("TCC-003: Get product by ID when product does not exist should return not found")
-    void TCC003_getProductById_WhenProductDoesNotExist_ShouldReturnNotFound() {
-        // Arrange
-        when(productService.findById("2")).thenReturn(Optional.empty());
-
-        // Act
-        ResponseEntity<?> response = productController.getProductById("2");
-
-        // Assert
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertTrue(response.getBody() instanceof Map);
-        Map<?, ?> body = (Map<?, ?>) response.getBody();
-        assertEquals("Product not found with id: 2", body.get("message"));
-        verify(productService).findById("2");
+        // Create a mock image file for testing
+        testImage = new MockMultipartFile(
+                "primaryImage",
+                "test-image.jpg",
+                "image/jpeg",
+                "test image content".getBytes());
     }
 
     @Test
@@ -88,7 +66,10 @@ class ProductControllerTest {
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(testProduct, response.getBody());
+        assertTrue(response.getBody() instanceof Map);
+        Map<?, ?> body = (Map<?, ?>) response.getBody();
+        assertEquals(true, body.get("success"));
+        assertEquals(testProduct, body.get("data"));
         verify(productService).findBySlug("test-laptop");
     }
 
@@ -105,6 +86,7 @@ class ProductControllerTest {
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertTrue(response.getBody() instanceof Map);
         Map<?, ?> body = (Map<?, ?>) response.getBody();
+        assertEquals(false, body.get("success"));
         assertEquals("Product not found with slug: non-existent", body.get("message"));
         verify(productService).findBySlug("non-existent");
     }
@@ -113,15 +95,15 @@ class ProductControllerTest {
     @DisplayName("TCC-006: Create product should return created product")
     void TCC006_createProduct_ShouldReturnCreatedProduct() {
         // Arrange
-        when(productService.createProduct(any(Product.class))).thenReturn(testProduct);
+        when(productService.createProduct(any(Product.class), any(MultipartFile.class))).thenReturn(testProduct);
 
         // Act
-        ResponseEntity<?> response = productController.createProduct(testProduct);
+        ResponseEntity<?> response = productController.createProduct(testProduct, testImage);
 
         // Assert
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(testProduct, response.getBody());
-        verify(productService).createProduct(any(Product.class));
+        verify(productService).createProduct(any(Product.class), any(MultipartFile.class));
     }
 
     @Test

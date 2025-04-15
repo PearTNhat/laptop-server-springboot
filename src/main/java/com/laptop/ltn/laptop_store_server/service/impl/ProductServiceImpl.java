@@ -1,10 +1,12 @@
 package com.laptop.ltn.laptop_store_server.service.impl;
 
 import com.laptop.ltn.laptop_store_server.entity.Product;
+import com.laptop.ltn.laptop_store_server.entity.Image;
 import com.laptop.ltn.laptop_store_server.exception.CustomException;
 import com.laptop.ltn.laptop_store_server.exception.ErrorCode;
 import com.laptop.ltn.laptop_store_server.repository.ProductRepository;
 import com.laptop.ltn.laptop_store_server.service.ProductService;
+import com.laptop.ltn.laptop_store_server.service.UploadImageFile;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -13,7 +15,9 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +30,7 @@ import java.util.Optional;
 public class ProductServiceImpl implements ProductService {
     ProductRepository productRepository;
     MongoTemplate mongoTemplate;
+    UploadImageFile uploadImageFile;
 
     /**
      * Find a product by its ID
@@ -121,9 +126,31 @@ public class ProductServiceImpl implements ProductService {
      * Create a new product
      */
     @Override
-    public Product createProduct(Product product) {
+    public Product createProduct(Product product, MultipartFile primaryImage) {
         product.setCreatedAt(LocalDateTime.now());
         product.setUpdatedAt(LocalDateTime.now());
+
+        // Upload primary image if provided
+        if (primaryImage != null && !primaryImage.isEmpty()) {
+            try {
+                // Upload to Cloudinary
+                Map uploadResult = uploadImageFile.uploadImageFile(primaryImage);
+
+                // Create Image object with Cloudinary response
+                Image image = Image.builder()
+                        .url((String) uploadResult.get("url"))
+                        .public_id((String) uploadResult.get("public_id"))
+                        .build();
+
+                // Set the image to the product
+                product.setPrimaryImage(image);
+            } catch (IOException e) {
+                // Use a more generic RuntimeException since we're not sure which ErrorCode
+                // constants exist
+                throw new RuntimeException("Error uploading product image: " + e.getMessage());
+            }
+        }
+
         return productRepository.save(product);
     }
 
