@@ -86,7 +86,13 @@ public class OrderImpl implements OrderService {
         String extraData = createExtraData(products, total, address, phone, name, orderBy);
         String rawSignature = "accessKey=" + accessKey + "&amount=" + total + "&extraData=" + extraData + "&ipnUrl=" + ipnUrl + "&orderId=" + orderId + "&orderInfo=" + orderInfo + "&partnerCode=" + partnerCode + "&redirectUrl=" + redirectUrl + "&requestId=" + requestId + "&requestType=" + requestType;
         String prettySignature = "";
-
+        System.out.println("total: " + total);
+        System.out.println("phone: " + phone);
+        System.out.println("address: " + address);
+        System.out.println("name: " + name);
+        System.out.println("orderBy: " + orderBy);
+        System.out.println("products: " + products.size());
+        System.out.println("extraData " + extraData);
         try {
             prettySignature = generateHmacSHA256(rawSignature, secretKey);
         } catch (Exception e) {
@@ -187,7 +193,6 @@ public class OrderImpl implements OrderService {
                 "accessKey=%s&orderId=%s&partnerCode=%s&requestId=%s",
                 accessKeyMomo, orderId, partnerCode, orderId
         );
-
         String signature = null;
         try {
             signature = generateHmacSHA256(rawSignature, secretKey);

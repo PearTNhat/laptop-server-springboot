@@ -52,7 +52,7 @@ class ProductControllerTest {
         when(productService.findById("1")).thenReturn(Optional.of(testProduct));
 
         // Act
-        ResponseEntity<?> response = productController.getProductById("1");
+        ResponseEntity<?> response = productController.getProductBySlug("1");
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -67,7 +67,7 @@ class ProductControllerTest {
         when(productService.findById("2")).thenReturn(Optional.empty());
 
         // Act
-        ResponseEntity<?> response = productController.getProductById("2");
+        ResponseEntity<?> response = productController.getProductBySlug("2");
 
         // Assert
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());

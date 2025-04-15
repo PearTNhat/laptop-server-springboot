@@ -137,82 +137,71 @@ public class CartServiceImpl implements CartService {
      * Update cart item quantity
      */
     @Override
-    public Cart updateCartItem(String userId, String productId, int quantity, String color) {
-        // Validate product exists
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
+    public void updateCartItem(String userId, String productId, int quantity, String color) {
+        if (productId == null || color == null) {
+            throw new IllegalArgumentException("Missing inputs");
+        }
 
-        // Get user's cart
-        Cart cart = getCartByUserId(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.CART_NOT_FOUND));
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isEmpty()) {
+            throw new RuntimeException("User not found");
+        }
 
-        // Find item in cart
-        Optional<CartItem> itemOptional = cart.getItems().stream()
-                .filter(item -> item.getProduct().get_id().equals(productId) &&
-                        (color == null || color.equals(item.getColor())))
+        User user = optionalUser.get();
+        List<CartItem> carts = user.getCarts();
+
+        Optional<CartItem> existingItemOpt = carts.stream()
+                .filter(item -> productId.equals(item.getProduct().get_id()) && color.equals(item.getColor()))
                 .findFirst();
 
-        if (itemOptional.isEmpty()) {
-            throw new CustomException(ErrorCode.PRODUCT_NOT_FOUND, "Product not found in cart");
-        }
-
-        if (quantity <= 0) {
-            // Remove item if quantity is 0 or negative
-            cart.getItems().remove(itemOptional.get());
-        } else {
-            // Validate stock
-            if (product.getQuantity() < quantity) {
-                throw new CustomException(ErrorCode.INSUFFICIENT_STOCK);
+        if (existingItemOpt.isPresent()) {
+            for (CartItem item : carts) {
+                if ( productId.equals(item.getProduct().get_id()) && color.equals(item.getColor())) {
+                    item.setQuantity(quantity); // update số lượng
+                    System.out.println("udpate quantity: " + item.getQuantity());
+                    break;
+                }
             }
-
-            // Update quantity
-            itemOptional.get().setQuantity(quantity);
+        } else {
+            // Add new item
+            CartItem newItem = new CartItem();
+            newItem.setProduct(productRepository.findById(productId)
+                    .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND)));
+            newItem.setQuantity(quantity);
+            newItem.setColor(color);
+            carts.add(newItem);
         }
-
-        // Recalculate cart total
-        updateCartTotal(cart);
-
-        // Update timestamp
-        cart.setUpdatedAt(LocalDateTime.now());
-
-        // Save and return updated cart
-        return cartRepository.save(cart);
+        user.setCarts(carts);
+        userRepository.save(user);
     }
 
     /**
      * Remove item from cart
      */
     @Override
-    public Cart removeCartItem(String userId, String productId, String color) {
+    public User removeCartItem(String userId, String productId, String color) {
         // Get user's cart
-        Cart cart = getCartByUserId(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.CART_NOT_FOUND));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_EXISTED));
 
         // Count initial items
-        int initialSize = cart.getItems().size();
+        List<CartItem> carts = user.getCarts();
+        int initialSize = carts.size();
 
         // Filter out the item to remove
-        List<CartItem> updatedItems = cart.getItems().stream()
+        List<CartItem> updatedItems = carts.stream()
                 .filter(item -> !(item.getProduct().get_id().equals(productId) &&
-                        (color == null || color.equals(item.getColor()))))
+                        color.equals(item.getColor()))
+                )
                 .collect(Collectors.toList());
 
-        // Check if item was removed
-        if (updatedItems.size() == initialSize) {
-            throw new CustomException(ErrorCode.PRODUCT_NOT_FOUND, "Product not found in cart");
-        }
-
         // Update cart items
-        cart.setItems(updatedItems);
+        user.setCarts(updatedItems);
 
         // Recalculate cart total
-        updateCartTotal(cart);
-
-        // Update timestamp
-        cart.setUpdatedAt(LocalDateTime.now());
 
         // Save and return updated cart
-        return cartRepository.save(cart);
+        return userRepository.save(user);
     }
 
     /**

@@ -19,8 +19,10 @@ public class OrderController {
     OrderService orderService;
 
     @PostMapping("/payment")
-    public ResponseEntity<MoMoResponse>  createOrder(@RequestBody OrderRequest request) {
-        return ResponseEntity.ok(orderService.createOrder(request));
+    public ApiResponse<MoMoResponse>  createOrder(@RequestBody OrderRequest request) {
+        return ApiResponse.<MoMoResponse>builder()
+                .data(orderService.createOrder(request))
+                .build();
     }
     @PostMapping("/payment/callback")
     public ResponseEntity<String> callBackPayment(@RequestBody MomoRequest request) {

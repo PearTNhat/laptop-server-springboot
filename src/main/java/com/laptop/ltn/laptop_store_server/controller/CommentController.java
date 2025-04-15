@@ -1,7 +1,12 @@
 package com.laptop.ltn.laptop_store_server.controller;
 
+import com.laptop.ltn.laptop_store_server.dto.response.ApiResponse;
 import com.laptop.ltn.laptop_store_server.entity.Comment;
 import com.laptop.ltn.laptop_store_server.service.CommentService;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,8 +18,10 @@ public class CommentController {
     private CommentService commentService;
 
     @PostMapping
-    public Comment createComment(@RequestBody CommentRequest commentRequest) {
-        return commentService.createComment(commentRequest.getProductId(), commentRequest.getRating(), commentRequest.getContent());
+    public ApiResponse<Comment> createComment(@RequestBody CommentRequest commentRequest) {
+        return ApiResponse.<Comment>builder()
+                .data(commentService.createComment(commentRequest.getProduct(), commentRequest.getRating(), commentRequest.getContent()))
+                .build();
     }
 
     @PutMapping("/{commentId}")
@@ -27,26 +34,23 @@ public class CommentController {
         commentService.deleteComment(commentId);
     }
 
-    @PostMapping("/{commentId}/like")
+    @PostMapping("/like/{commentId}")
     public Comment likeComment(@PathVariable String commentId) {
         return commentService.likeComment(commentId);
     }
 
-    @PostMapping("/{commentId}/dislike")
+    @PostMapping("/dislike/{commentId}")
     public Comment dislikeComment(@PathVariable String commentId) {
         return commentService.dislikeComment(commentId);
     }
 }
 
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 class CommentRequest {
-    private String productId;
+    private String product;
     private Integer rating;
     private String content;
-
-    public String getProductId() { return productId; }
-    public void setProductId(String productId) { this.productId = productId; }
-    public Integer getRating() { return rating; }
-    public void setRating(Integer rating) { this.rating = rating; }
-    public String getContent() { return content; }
-    public void setContent(String content) { this.content = content; }
 }

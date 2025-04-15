@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderProductRequest {
+    private String _id;
     private Product product;
     private String color;
     private Integer quantity;

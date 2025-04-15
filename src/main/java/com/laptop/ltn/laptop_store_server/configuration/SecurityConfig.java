@@ -29,7 +29,7 @@ import java.util.concurrent.ScheduledExecutorService;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-    private final String[] GET_METHODS = { "user/info" };
+    private final String[] GET_METHODS = { "user/info", };
     private final String[] PUT_METHODS = { "user" };
     private final String[] POST_METHODS = { "sendMail", "sendMailWithAttachment" };
     private final String[] AUTHENTICATED_ENDPOINTS = { "cart/**" };
@@ -43,6 +43,8 @@ public class SecurityConfig {
         http.authorizeHttpRequests(request ->
                 request.requestMatchers(HttpMethod.POST, POST_METHODS).permitAll()
                         .requestMatchers(HttpMethod.POST, "auth/**").permitAll()
+                        .requestMatchers(AUTHENTICATED_ENDPOINTS).permitAll()
+                        .requestMatchers("/**").permitAll()
                 .anyRequest()
                 .authenticated());
         http.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
