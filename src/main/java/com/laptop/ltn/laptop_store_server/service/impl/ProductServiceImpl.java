@@ -167,7 +167,19 @@ public class ProductServiceImpl implements ProductService {
 
         // Generate slug if not provided
         if (!StringUtils.hasText(product.getSlug())) {
-            String generatedSlug = product.getTitle().toLowerCase().replaceAll("\\s+", "-");
+            String generatedSlug = product.getTitle().toLowerCase()
+                    .replaceAll("[*+~.()'\"`!:@/]", "") // Remove special characters including slashes
+                    .replaceAll("[àáạảãâầấậẩẫăằắặẳẵ]", "a")
+                    .replaceAll("[èéẹẻẽêềếệểễ]", "e")
+                    .replaceAll("[ìíịỉĩ]", "i")
+                    .replaceAll("[òóọỏõôồốộổỗơờớợởỡ]", "o")
+                    .replaceAll("[ùúụủũưừứựửữ]", "u")
+                    .replaceAll("[ỳýỵỷỹ]", "y")
+                    .replaceAll("đ", "d")
+                    .replaceAll("\\s+", "-") // Replace spaces with hyphens
+                    .replaceAll("-+", "-") // Replace multiple hyphens with a single one
+                    .replaceAll("^-|-$", ""); // Remove leading and trailing hyphens
+
             product.setSlug(generatedSlug);
         }
 
