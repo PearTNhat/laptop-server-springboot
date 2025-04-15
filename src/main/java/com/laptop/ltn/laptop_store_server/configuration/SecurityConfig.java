@@ -37,12 +37,12 @@ public class SecurityConfig {
     @Value("${jwt.signerKey}")
     private String singerKey;
 
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, CustomJwtDecoder customJwtDecoder) throws Exception {
-        http.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.POST, POST_METHODS).permitAll()
-                .requestMatchers(HttpMethod.POST, "auth/**").permitAll()
-                .requestMatchers(AUTHENTICATED_ENDPOINTS).authenticated()
-                .requestMatchers("/**").permitAll() // Allow all requests for now
+        http.authorizeHttpRequests(request ->
+                request.requestMatchers(HttpMethod.POST, POST_METHODS).permitAll()
+                        .requestMatchers(HttpMethod.POST, "auth/**").permitAll()
                 .anyRequest()
                 .authenticated());
         http.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
@@ -64,7 +64,6 @@ public class SecurityConfig {
         converter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
         return converter;
     }
-
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
