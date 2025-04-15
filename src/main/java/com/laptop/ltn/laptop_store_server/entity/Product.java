@@ -70,4 +70,8 @@ public class Product {
     public Product() {
         this.configs = new Configs(); // Tạo configs mặc định
     }
+
+
+    @Transient
+    private List<Comment> comments;
 }

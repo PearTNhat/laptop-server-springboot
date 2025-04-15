@@ -44,7 +44,8 @@ public class CommentController {
         Comment updatedComment = null;
 
         String userId = jwt.getSubject();
-        updatedComment = commentService.updateComment(commentId, userId, request.get("content"), Integer.valueOf(request.get("rating")));
+        Integer rating = request.get("rating")== null ? null: Integer.parseInt(request.get("rating"));
+        updatedComment = commentService.updateComment(commentId, userId, request.get("content"), rating);
         response.put("success", true);
         response.put("data", updatedComment);
         return ResponseEntity.ok(response);
@@ -63,7 +64,7 @@ public class CommentController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/{commentId}/like")
+    @PutMapping("/like/{commentId}")
     public ResponseEntity<Map<String, Object>> likeComment(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable String commentId) {

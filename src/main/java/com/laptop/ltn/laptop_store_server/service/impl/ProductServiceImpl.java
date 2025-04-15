@@ -1,11 +1,7 @@
 package com.laptop.ltn.laptop_store_server.service.impl;
 
-import com.laptop.ltn.laptop_store_server.entity.Product;
-import com.laptop.ltn.laptop_store_server.entity.Image;
-import com.laptop.ltn.laptop_store_server.entity.Series;
-import com.laptop.ltn.laptop_store_server.entity.ColorVariant;
-import com.laptop.ltn.laptop_store_server.exception.CustomException;
-import com.laptop.ltn.laptop_store_server.exception.ErrorCode;
+import com.laptop.ltn.laptop_store_server.entity.*;
+import com.laptop.ltn.laptop_store_server.repository.CommentRepository;
 import com.laptop.ltn.laptop_store_server.repository.ProductRepository;
 import com.laptop.ltn.laptop_store_server.repository.SeriesRepository;
 import com.laptop.ltn.laptop_store_server.service.ProductService;
@@ -13,8 +9,11 @@ import com.laptop.ltn.laptop_store_server.service.UploadImageFile;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.bson.Document;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.MongoExpression;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
@@ -23,11 +22,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+
 
 @Service
 @RequiredArgsConstructor
@@ -37,12 +33,13 @@ public class ProductServiceImpl implements ProductService {
     MongoTemplate mongoTemplate;
     UploadImageFile uploadImageFile;
     SeriesRepository seriesRepository;
+    CommentRepository  commentRepository;
 
     /**
      * Find a product by its ID
      */
     @Override
-    public Optional<Product> findById(String id) {
+    public  Optional<Product> findById(String id) {
         return productRepository.findById(id);
     }
 
@@ -51,7 +48,21 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public Optional<Product> findBySlug(String slug) {
-        return productRepository.findBySlug(slug);
+        Product product = productRepository.findBySlug(slug).orElseThrow(() -> new RuntimeException("Product not found"));
+
+        // Fetch comments for the product
+        List<Comment> comments = commentRepository.findByProductIdAndParentIdIsNull(product.get_id());
+
+        // For each comment, fetch the replies
+        for (Comment comment : comments) {
+            List<Comment> replies = commentRepository.findByProductIdAndParentId( product.get_id(), comment.get_id());
+            comment.setReplies(replies);  // Set replies for each comment
+        }
+
+        // Set the comments on the product
+        product.setComments(comments);
+
+        return Optional.of(product);
     }
 
     /**
@@ -59,7 +70,7 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public Map<String, Object> getAllProducts(int page, int size, String brand,
-            Double minPrice, Double maxPrice, String sort) {
+                                              Double minPrice, Double maxPrice, String sort) {
 
         // Create query with filters
         Query query = new Query();

@@ -14,4 +14,10 @@ public interface CommentRepository extends MongoRepository<Comment, String> {
     void deleteByParentId(String commentId);
     @Query("{ 'product._id': ?0, 'rating': { $ne: null } }")
     List<Comment> findByProductIdAndRatingIsNotNull(String productId);
+
+    @Query("{ 'product._id': ?0, 'parentId': null }")
+    List<Comment> findByProductIdAndParentIdIsNull(String productId);
+
+    @Query(value = "{ 'product._id': ?0, 'parentId._id': ?1 }")
+    List<Comment> findByProductIdAndParentId(String productId, String parentId);
 }

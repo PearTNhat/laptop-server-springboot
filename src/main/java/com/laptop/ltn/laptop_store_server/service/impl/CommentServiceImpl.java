@@ -92,6 +92,7 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("Comment not found"));
 
+
         if (!comment.getUser().get_id().equals(userId)) {
             throw new RuntimeException("You are not the owner of this comment");
         }
@@ -111,27 +112,15 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public void deleteComment(String commentId, String userId) {
-//        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new RuntimeException("Comment not found"));
-//        if (!comment.getUser().get_id().equals(userId)) {
-//            throw new RuntimeException("User not authorized");
-//        }
-//        if (comment.getRating() != null) {
-//            updateProductRating(comment.getProduct().get_id(), "DELETE", -comment.getRating());
-//        }
-//        commentRepository.delete(comment);
-
         try {
+
             Comment comment = commentRepository.findById(commentId)
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy bình luận"));
-
+            System.out.println(comment.getContent());
             if (!comment.getUser().get_id().equals(userId)) {
                 throw new RuntimeException("Bạn không phải chủ sở hữu của bình luận này");
             }
-
-            if (comment.getRating() != null) {
-                updateProductRating(comment.getProduct().get_id(), "DELETE", -comment.getRating());
-            }
-
+//            updateProductRating(comment.getProduct().get_id(), "DELETE", -comment.getRating());
             commentRepository.deleteById(commentId);
             commentRepository.deleteByParentId(commentId);
 
