@@ -2,6 +2,7 @@ package com.laptop.ltn.laptop_store_server.service;
 
 import com.laptop.ltn.laptop_store_server.entity.Image;
 import com.laptop.ltn.laptop_store_server.entity.Product;
+import com.laptop.ltn.laptop_store_server.repository.CommentRepository;
 import com.laptop.ltn.laptop_store_server.repository.ProductRepository;
 import com.laptop.ltn.laptop_store_server.service.impl.ProductServiceImpl;
 import com.laptop.ltn.laptop_store_server.utils.TestDataDiffLogger;
@@ -44,6 +45,9 @@ public class ProductServiceTest {
 
     @Mock
     private UploadImageFile uploadImageFile;
+
+    @Mock
+    private CommentRepository commentRepository;
 
     @InjectMocks
     private ProductServiceImpl productServiceImpl;
@@ -115,6 +119,7 @@ public class ProductServiceTest {
     void findBySlug_whenProductExists_shouldReturnProduct() {
         // Arrange
         when(productRepository.findBySlug("test-laptop")).thenReturn(Optional.of(testProduct));
+        when(commentRepository.findByProductIdAndParentIdIsNull(anyString())).thenReturn(Collections.emptyList());
 
         // Act
         Optional<Product> result = productService.findBySlug("test-laptop");
@@ -123,6 +128,7 @@ public class ProductServiceTest {
         assertTrue(result.isPresent(), "Product should be present in result");
         assertEquals(testProduct, result.get(), "Product should match test product");
         verify(productRepository).findBySlug("test-laptop");
+        verify(commentRepository).findByProductIdAndParentIdIsNull(anyString());
     }
 
     @Test

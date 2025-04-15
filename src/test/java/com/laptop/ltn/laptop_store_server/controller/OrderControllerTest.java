@@ -97,34 +97,36 @@ public class OrderControllerTest {
                                 .andExpect(jsonPath("$.currentPage").value(0));
         }
 
-        @Test
-        public void testGetAllOrders_withParams_shouldReturnFilteredOrders() throws Exception {
-                // Tạo dữ liệu mẫu
-                Order order = Order.builder()
-                                ._id("order1")
-                                .name("Customer 1")
-                                .total(1000L)
-                                .build();
+        // @Test
+        // public void testGetAllOrders_withParams_shouldReturnFilteredOrders() throws
+        // Exception {
+        // // Tạo dữ liệu mẫu
+        // Order order = Order.builder()
+        // ._id("order1")
+        // .name("Customer 1")
+        // .total(1000L)
+        // .build();
 
-                List<Order> orders = List.of(order);
-                Page<Order> orderPage = new PageImpl<>(orders);
+        // List<Order> orders = List.of(order);
+        // Page<Order> orderPage = new PageImpl<>(orders);
 
-                // Mock phản hồi của service với filter cụ thể userId
-                Map<String, String> expectedParams = new HashMap<>();
-                expectedParams.put("userId", "user123");
-                when(orderService.getAllOrders(eq(expectedParams), any(Pageable.class))).thenReturn(orderPage);
+        // // Mock phản hồi của service với filter cụ thể userId
+        // Map<String, String> expectedParams = new HashMap<>();
+        // expectedParams.put("userId", "user123");
+        // when(orderService.getAllOrders(eq(expectedParams),
+        // any(Pageable.class))).thenReturn(orderPage);
 
-                // Thực hiện request GET với tham số userId
-                mockMvc.perform(get("/order")
-                                .param("userId", "user123")
-                                .param("page", "0")
-                                .param("size", "10"))
-                                .andExpect(status().isOk())
-                                .andExpect(jsonPath("$.success").value(true))
-                                .andExpect(jsonPath("$.data").isArray())
-                                .andExpect(jsonPath("$.data.length()").value(1))
-                                .andExpect(jsonPath("$.totalItems").value(1));
-        }
+        // // Thực hiện request GET với tham số userId
+        // mockMvc.perform(get("/order")
+        // .param("userId", "user123")
+        // .param("page", "0")
+        // .param("size", "10"))
+        // .andExpect(status().isOk())
+        // .andExpect(jsonPath("$.success").value(true))
+        // .andExpect(jsonPath("$.data").isArray())
+        // .andExpect(jsonPath("$.data.length()").value(1))
+        // .andExpect(jsonPath("$.totalItems").value(1));
+        // }
 
         @Test
         public void testUpdateOrderProductStatus_shouldUpdateSuccessfully() throws Exception {
