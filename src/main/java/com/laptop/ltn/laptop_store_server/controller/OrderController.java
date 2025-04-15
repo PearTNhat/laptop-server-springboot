@@ -29,18 +29,22 @@ public class OrderController {
     OrderService orderService;
 
     @PostMapping("/payment")
-    public ApiResponse<MoMoResponse>  createOrder(@RequestBody OrderRequest request) {
+    public ApiResponse<MoMoResponse> createOrder(@RequestBody OrderRequest request) {
         return ApiResponse.<MoMoResponse>builder()
                 .data(orderService.createOrder(request))
                 .build();
     }
+
     @PostMapping("/payment/callback")
     public ResponseEntity<String> callBackPayment(@RequestBody MomoRequest request) {
         return ResponseEntity.ok(orderService.callBackPayment(request));
     }
+
     @PostMapping("/payment/{orderId}")
-    public ResponseEntity<MoMoResponse> createOrder(@PathVariable String orderId) {
-        return ResponseEntity.ok(orderService.transactionStatus(orderId));
+    public ApiResponse<MoMoResponse> checkStatus(@PathVariable String orderId) {
+        return ApiResponse.<MoMoResponse>builder()
+                .data(orderService.transactionStatus(orderId))
+                .build();
     }
 
     @DeleteMapping("/{orderId}")
@@ -51,7 +55,7 @@ public class OrderController {
                 .build();
     }
 
-    @GetMapping
+    @GetMapping("/get-all")
     public ResponseEntity<?> getAllOrders(
             @RequestParam Map<String, String> params,
             @RequestParam(defaultValue = "0") int page,

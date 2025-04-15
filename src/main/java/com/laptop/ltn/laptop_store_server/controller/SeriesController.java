@@ -1,10 +1,9 @@
 package com.laptop.ltn.laptop_store_server.controller;
 
+import com.laptop.ltn.laptop_store_server.dto.response.ApiResponse;
 import com.laptop.ltn.laptop_store_server.entity.Series;
 import com.laptop.ltn.laptop_store_server.service.SeriesService;
-import com.laptop.ltn.laptop_store_server.dto.response.ApiResponse;
-import com.laptop.ltn.laptop_store_server.entity.Brand;
-import com.laptop.ltn.laptop_store_server.service.BrandService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,18 +12,24 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/series") // Changed from "/api/series" to "/series" since context-path is already /api
+@RequestMapping("/series")
+@RequiredArgsConstructor
 public class SeriesController {
-
-    @Autowired
     private SeriesService seriesService;
 
     @GetMapping
-    public List<Series> getAllSeries() {
-        return seriesService.getAllSeries();
+    public ResponseEntity<Map<String, Object>> getAllSeries() {
+        Map<String, Object> response = new HashMap<>();
+        List<Series> seriesList = seriesService.getAllSeries();
+        response.put("success", true);
+        response.put("data", true);
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/brand/{id}")

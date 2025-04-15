@@ -16,7 +16,7 @@ public interface SeriesRepository extends MongoRepository<Series, String> {
      */
     @Query("{ 'brand' : ?0 }")
     List<Series> findByBrandId(ObjectId brandId);
-    
+
     /**
      * Find series by brand using string ID
      * Will convert string to ObjectId

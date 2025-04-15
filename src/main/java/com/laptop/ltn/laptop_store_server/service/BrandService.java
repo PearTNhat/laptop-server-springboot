@@ -16,7 +16,7 @@ public interface BrandService {
 
     /**
      * Retrieves a brand by its ID
-     * 
+     *
      * @param id The ID of the brand to retrieve
      * @return An Optional containing the brand if found, or empty if not found
      */

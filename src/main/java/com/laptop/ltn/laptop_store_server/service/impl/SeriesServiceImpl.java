@@ -16,12 +16,15 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class SeriesServiceImpl implements SeriesService {
-
     SeriesRepository seriesRepository;
 
     @Override
     public List<Series> getAllSeries() {
-        return seriesRepository.findAll();
+        List<Series> seriesList = seriesRepository.findAll();
+        if (seriesList.isEmpty()) {
+            throw new RuntimeException("Empty series");
+        }
+        return seriesList;
     }
 
     @Override
