@@ -37,12 +37,13 @@ public class SecurityConfig {
     @Value("${jwt.signerKey}")
     private String singerKey;
 
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, CustomJwtDecoder customJwtDecoder) throws Exception {
-        http.authorizeHttpRequests(request ->
-                request.requestMatchers(HttpMethod.POST, POST_METHODS).permitAll()
-                        .requestMatchers(HttpMethod.POST, "auth/**").permitAll()
+        http.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.POST, POST_METHODS).permitAll()
+                .requestMatchers(HttpMethod.POST, "auth/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/brand/**").permitAll() // Allow GET access to brand
+                .requestMatchers(HttpMethod.GET, "/product/**").permitAll() // Allow GET access to product
+                .requestMatchers("/series/brand/**").permitAll() // Fix the path to include /api
                 .anyRequest()
                 .authenticated());
         http.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
@@ -64,6 +65,7 @@ public class SecurityConfig {
         converter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
         return converter;
     }
+
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
@@ -78,14 +80,17 @@ public class SecurityConfig {
 
         return new CorsFilter(urlBasedCorsConfigurationSource);
     }
+
     @Bean
     public ScheduledExecutorService scheduledExecutorService() {
         return Executors.newScheduledThreadPool(1);
     }
+
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(10);
     }
+
     @Bean
     public WebClient webClient() {
         return WebClient.builder().build();

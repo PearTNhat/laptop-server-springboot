@@ -1,38 +1,40 @@
 package com.laptop.ltn.laptop_store_server.entity;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "series") // Tương đương với collection "Series" trong MongoDB
+@Document(collection = "series") 
 public class Series {
     @Id
-    private String _id; // MongoDB sử dụng _id (String)
-
+    private String _id;
     private String title;
-
+    
+    // Image structure to match Node.js model
     private Image image;
-
-    @DocumentReference(collection = "brand") // Liên kết tới Brand (Tương đương ref: 'Brands' trong Mongoose)
-    private Brand brand;
-
-    @CreatedDate
-    private Instant createdAt; // Thời gian tạo
-
-    @LastModifiedDate
-    private Instant updatedAt; // Thời gian cập nhật
+    
+    // Store brand as ObjectId directly to match Node.js model
+    // Not using @DBRef because Mongoose uses simple refs
+    private ObjectId brand;
+    
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Image {
+        private String url;
+        private String public_id;
+    }
 }
