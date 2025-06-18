@@ -4,9 +4,11 @@ import com.laptop.ltn.laptop_store_server.entity.Series;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 public interface SeriesRepository extends MongoRepository<Series, String> {
     /**
      * Find all series that belong to a specific brand

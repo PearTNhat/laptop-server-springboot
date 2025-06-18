@@ -133,9 +133,9 @@ public class ProductServiceImpl implements ProductService {
 
         // Build response
         Map<String, Object> response = new HashMap<>();
-        response.put("data", products);
-        response.put("count", total);
         response.put("success", true);
+        response.put("counts", total);
+        response.put("data", products);
         return response;
     }
 
@@ -180,7 +180,7 @@ public class ProductServiceImpl implements ProductService {
 
         // Generate slug if not provided
         if (!StringUtils.hasText(product.getSlug())) {
-            String generatedSlug = product.getTitle().toLowerCase()
+            String baseSlug = product.getTitle().toLowerCase()
                     .replaceAll("[*+~.()'\"`!:@/]", "") // Remove special characters including slashes
                     .replaceAll("[àáạảãâầấậẩẫăằắặẳẵ]", "a")
                     .replaceAll("[èéẹẻẽêềếệểễ]", "e")
@@ -193,7 +193,15 @@ public class ProductServiceImpl implements ProductService {
                     .replaceAll("-+", "-") // Replace multiple hyphens with a single one
                     .replaceAll("^-|-$", ""); // Remove leading and trailing hyphens
 
-            product.setSlug(generatedSlug);
+            // Check if slug already exists and generate unique slug
+            String finalSlug = baseSlug;
+            int counter = 1;
+            while (productRepository.findBySlug(finalSlug).isPresent()) {
+                finalSlug = baseSlug + "-" + counter;
+                counter++;
+            }
+
+            product.setSlug(finalSlug);
         }
 
         return productRepository.save(product);
@@ -279,10 +287,9 @@ public class ProductServiceImpl implements ProductService {
 
         // Build response
         Map<String, Object> response = new HashMap<>();
-        response.put("products", products);
-        response.put("currentPage", page);
-        response.put("totalItems", total);
-        response.put("totalPages", (int) Math.ceil((double) total / size));
+        response.put("success", true);
+        response.put("counts", total);
+        response.put("data", products);
 
         return response;
     }

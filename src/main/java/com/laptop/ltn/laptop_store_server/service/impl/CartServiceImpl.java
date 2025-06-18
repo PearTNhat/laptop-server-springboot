@@ -138,8 +138,8 @@ public class CartServiceImpl implements CartService {
      */
     @Override
     public void updateCartItem(String userId, String productId, int quantity, String color) {
-        if (productId == null || color == null) {
-            throw new IllegalArgumentException("Missing inputs");
+        if (productId == null) {
+            throw new IllegalArgumentException("Product ID is required");
         }
 
         Optional<User> optionalUser = userRepository.findById(userId);
@@ -151,12 +151,14 @@ public class CartServiceImpl implements CartService {
         List<CartItem> carts = user.getCarts();
 
         Optional<CartItem> existingItemOpt = carts.stream()
-                .filter(item -> productId.equals(item.getProduct().get_id()) && color.equals(item.getColor()))
+                .filter(item -> productId.equals(item.getProduct().get_id()) && 
+                        (color == null || color.equals(item.getColor())))
                 .findFirst();
 
         if (existingItemOpt.isPresent()) {
             for (CartItem item : carts) {
-                if ( productId.equals(item.getProduct().get_id()) && color.equals(item.getColor())) {
+                if (productId.equals(item.getProduct().get_id()) && 
+                        (color == null || color.equals(item.getColor()))) {
                     item.setQuantity(quantity); // update số lượng
                     System.out.println("udpate quantity: " + item.getQuantity());
                     break;
@@ -191,7 +193,7 @@ public class CartServiceImpl implements CartService {
         // Filter out the item to remove
         List<CartItem> updatedItems = carts.stream()
                 .filter(item -> !(item.getProduct().get_id().equals(productId) &&
-                        color.equals(item.getColor()))
+                        (color == null || color.equals(item.getColor())))
                 )
                 .collect(Collectors.toList());
 

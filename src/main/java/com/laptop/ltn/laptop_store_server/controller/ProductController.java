@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -89,7 +90,10 @@ public class ProductController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", "Error retrieving products: " + e.getMessage()));
+                    .body(Map.of(
+                        "success", false,
+                        "message", "Error retrieving products: " + e.getMessage()
+                    ));
         }
     }
 
@@ -115,6 +119,20 @@ public class ProductController {
             product.setTitle((String) productMap.get("title"));
             product.setBrand((String) productMap.get("brand")); // Assuming brand is sent as String name/slug
             product.setPrice((Integer) productMap.get("price"));
+            
+            // Handle slug - if provided, validate it's unique
+            String providedSlug = (String) productMap.get("slug");
+            if (StringUtils.hasText(providedSlug)) {
+                // Check if slug already exists
+                if (productService.findBySlug(providedSlug).isPresent()) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body(Map.of(
+                                    "success", false,
+                                    "message", "Slug '" + providedSlug + "' already exists. Please use a different slug."));
+                }
+                product.setSlug(providedSlug);
+            }
+            
             // Handle potential NumberFormatException if discountPrice is not sent as Double
             Object discountPriceObj = productMap.get("discountPrice");
             if (discountPriceObj instanceof Number) {
@@ -203,14 +221,24 @@ public class ProductController {
         try {
             Optional<Product> updatedProduct = productService.updateProduct(id, product);
             if (updatedProduct.isPresent()) {
-                return ResponseEntity.ok(updatedProduct.get());
+                return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "Product updated successfully",
+                    "data", updatedProduct.get()
+                ));
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("message", "Product not found with id: " + id));
+                        .body(Map.of(
+                            "success", false,
+                            "message", "Product not found with id: " + id
+                        ));
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", "Error updating product: " + e.getMessage()));
+                    .body(Map.of(
+                        "success", false,
+                        "message", "Error updating product: " + e.getMessage()
+                    ));
         }
     }
 
@@ -225,14 +253,23 @@ public class ProductController {
         try {
             boolean deleted = productService.deleteProduct(id);
             if (deleted) {
-                return ResponseEntity.ok(Map.of("message", "Product deleted successfully"));
+                return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "Product deleted successfully"
+                ));
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("message", "Product not found with id: " + id));
+                        .body(Map.of(
+                            "success", false,
+                            "message", "Product not found with id: " + id
+                        ));
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", "Error deleting product: " + e.getMessage()));
+                    .body(Map.of(
+                        "success", false,
+                        "message", "Error deleting product: " + e.getMessage()
+                    ));
         }
     }
 
@@ -254,7 +291,10 @@ public class ProductController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", "Error searching products: " + e.getMessage()));
+                    .body(Map.of(
+                        "success", false,
+                        "message", "Error searching products: " + e.getMessage()
+                    ));
         }
     }
 

@@ -4,6 +4,7 @@ import com.laptop.ltn.laptop_store_server.dto.response.ApiResponse;
 import com.laptop.ltn.laptop_store_server.entity.Cart;
 import com.laptop.ltn.laptop_store_server.entity.User;
 import com.laptop.ltn.laptop_store_server.exception.CustomException;
+import com.laptop.ltn.laptop_store_server.exception.ErrorCode;
 import com.laptop.ltn.laptop_store_server.service.CartService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -36,15 +37,37 @@ public class CartController {
     public ApiResponse<Void> updateCartItem(
             @AuthenticationPrincipal Jwt jwt,
             @RequestBody Map<String, Object> request) {
+        
         String userId = jwt.getSubject();
         String productId = (String) request.get("product");
-        Integer quantity = (Integer) request.get("quantity");
+        
+        // Handle quantity conversion from Number to Integer
+        Integer quantity = null;
+        Object quantityObj = request.get("quantity");
+        if (quantityObj instanceof Number) {
+            quantity = ((Number) quantityObj).intValue();
+        } else if (quantityObj instanceof String) {
+            try {
+                quantity = Integer.parseInt((String) quantityObj);
+            } catch (NumberFormatException e) {
+                throw new CustomException(ErrorCode.INVALID_KEY, "Invalid quantity format");
+            }
+        }
+        
         String color = (String) request.get("color");
+        
+        // Validate required fields
+        if (productId == null || productId.isEmpty()) {
+            throw new CustomException(ErrorCode.INVALID_KEY, "Product ID is required");
+        }
+        if (quantity == null || quantity <= 0) {
+            throw new CustomException(ErrorCode.INVALID_KEY, "Valid quantity is required");
+        }
+        
         cartService.updateCartItem(userId, productId, quantity, color);
         return ApiResponse.<Void>builder()
-                .message("oke")
+                .message("Cart updated successfully")
                 .build();
-
     }
 
     @DeleteMapping

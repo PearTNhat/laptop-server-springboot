@@ -4,7 +4,6 @@ import com.laptop.ltn.laptop_store_server.dto.response.ApiResponse;
 import com.laptop.ltn.laptop_store_server.entity.Series;
 import com.laptop.ltn.laptop_store_server.service.SeriesService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,14 +19,15 @@ import java.util.Map;
 @RequestMapping("/series")
 @RequiredArgsConstructor
 public class SeriesController {
-    private SeriesService seriesService;
+    
+    private final SeriesService seriesService;
 
     @GetMapping
     public ResponseEntity<Map<String, Object>> getAllSeries() {
         Map<String, Object> response = new HashMap<>();
         List<Series> seriesList = seriesService.getAllSeries();
         response.put("success", true);
-        response.put("data", true);
+        response.put("data", seriesList);
 
         return ResponseEntity.ok(response);
     }
