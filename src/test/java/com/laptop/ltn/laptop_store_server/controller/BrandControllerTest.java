@@ -45,7 +45,7 @@ class BrandControllerTest {
 
     @Test
     @DisplayName("TCC-011: Get all brands should return brands")
-    void TCC011_getAllBrands_ShouldReturnBrands() {
+    void TCC_Brand_getAllBrands_shouldReturnBrands() {
         // Arrange
         List<Brand> expectedBrands = Arrays.asList(testBrand);
         when(brandService.getAllBrands()).thenReturn(expectedBrands);
@@ -62,7 +62,7 @@ class BrandControllerTest {
 
     @Test
     @DisplayName("TCC-012: Create brand should return created brand")
-    void TCC012_createBrand_ShouldReturnCreatedBrand() {
+    void TCC_Brand_createBrand_shouldReturnCreatedBrand() {
         // Arrange
         when(brandService.createBrand(any(Brand.class))).thenReturn(testBrand);
 
@@ -79,7 +79,7 @@ class BrandControllerTest {
 
     @Test
     @DisplayName("TCC-013: Update brand when brand exists should return updated brand")
-    void TCC013_updateBrand_WhenBrandExists_ShouldReturnUpdatedBrand() {
+    void TCC_Brand_updateBrand_whenBrandExists_shouldReturnUpdatedBrand() {
         // Arrange
         Brand updatedBrand = new Brand();
         updatedBrand.setTitle("Updated Brand");
@@ -98,7 +98,7 @@ class BrandControllerTest {
 
     @Test
     @DisplayName("TCC-014: Update brand when brand does not exist should return not found")
-    void TCC014_updateBrand_WhenBrandDoesNotExist_ShouldReturnNotFound() {
+    void TCC_Brand_updateBrand_whenBrandDoesNotExist_shouldReturnNotFound() {
         // Arrange
         Brand updatedBrand = new Brand();
         when(brandService.updateBrand("2", updatedBrand)).thenReturn(Optional.empty());
@@ -115,7 +115,7 @@ class BrandControllerTest {
 
     @Test
     @DisplayName("TCC-015: Delete brand when brand exists should return success message")
-    void TCC015_deleteBrand_WhenBrandExists_ShouldReturnSuccessMessage() {
+    void TCC_Brand_deleteBrand_whenBrandExists_shouldReturnSuccessMessage() {
         // Arrange
         when(brandService.deleteBrand("1")).thenReturn(true);
 
@@ -131,7 +131,7 @@ class BrandControllerTest {
 
     @Test
     @DisplayName("TCC-016: Delete brand when brand does not exist should return not found")
-    void TCC016_deleteBrand_WhenBrandDoesNotExist_ShouldReturnNotFound() {
+    void TCC_Brand_deleteBrand_whenBrandDoesNotExist_shouldReturnNotFound() {
         // Arrange
         when(brandService.deleteBrand("2")).thenReturn(false);
 

@@ -73,7 +73,7 @@ class ProductControllerTest {
 
     @Test
     @DisplayName("TC-001: Get product by slug - Success")
-    void getProductBySlug_whenProductExists_shouldReturnProduct() {
+    void TCC_Product_getProductBySlug_whenProductExists_shouldReturnProduct() {
         // Arrange
         when(productService.findBySlug("test-laptop")).thenReturn(Optional.of(testProduct));
 
@@ -93,7 +93,7 @@ class ProductControllerTest {
 
     @Test
     @DisplayName("TC-002: Get product by slug - Not Found")
-    void getProductBySlug_whenProductDoesNotExist_shouldReturnNotFound() {
+    void TCC_Product_getProductBySlug_whenProductDoesNotExist_shouldReturnNotFound() {
         // Arrange
         when(productService.findBySlug("non-existent")).thenReturn(Optional.empty());
 
@@ -113,7 +113,7 @@ class ProductControllerTest {
 
     @Test
     @DisplayName("TC-003: Get all products - Success")
-    void getAllProducts_shouldReturnProductsList() {
+    void TCC_Product_getAllProducts_shouldReturnProductsList() {
         // Arrange
         Map<String, Object> serviceResponse = new HashMap<>();
         serviceResponse.put("data", Collections.singletonList(testProduct));
@@ -135,7 +135,7 @@ class ProductControllerTest {
 
     @Test
     @DisplayName("TC-004: Create product - Success")
-    void createProduct_withValidData_shouldReturnCreatedProduct() throws Exception {
+    void TCC_Product_createProduct_withValidData_shouldReturnCreatedProduct() throws Exception {
         // Arrange
         String documentJson = "{\"title\":\"New Laptop\",\"price\":999}";
         Map<String, Object> productMap = new HashMap<>();
@@ -166,7 +166,7 @@ class ProductControllerTest {
 
     @Test
     @DisplayName("TC-005: Update product - Success")
-    void updateProduct_whenProductExists_shouldReturnUpdatedProduct() {
+    void TCC_Product_updateProduct_whenProductExists_shouldReturnUpdatedProduct() {
         // Arrange
         Product updatedProduct = Product.builder()
                 .title("Updated Laptop")
@@ -180,14 +180,16 @@ class ProductControllerTest {
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode(), "HTTP status should be 200 OK");
-        assertEquals(updatedProduct, response.getBody(), "Response body should contain the updated product");
+        assertTrue(response.getBody() instanceof Map, "Response body should be a Map");
+        Map<?, ?> body = (Map<?, ?>) response.getBody();
+        assertEquals(updatedProduct, body.get("data"), "Response body should contain the updated product");
 
         verify(productService).updateProduct("1", updatedProduct);
     }
 
     @Test
     @DisplayName("TC-006: Update product - Not Found")
-    void updateProduct_whenProductDoesNotExist_shouldReturnNotFound() {
+    void TCC_Product_updateProduct_whenProductDoesNotExist_shouldReturnNotFound() {
         // Arrange
         Product updatedProduct = Product.builder()
                 .title("Updated Laptop")
@@ -210,7 +212,7 @@ class ProductControllerTest {
 
     @Test
     @DisplayName("TC-007: Delete product - Success")
-    void deleteProduct_whenProductExists_shouldReturnSuccess() {
+    void TCC_Product_deleteProduct_whenProductExists_shouldReturnSuccess() {
         // Arrange
         when(productService.deleteProduct("1")).thenReturn(true);
 
@@ -229,7 +231,7 @@ class ProductControllerTest {
 
     @Test
     @DisplayName("TC-008: Delete product - Not Found")
-    void deleteProduct_whenProductDoesNotExist_shouldReturnNotFound() {
+    void TCC_Product_deleteProduct_whenProductDoesNotExist_shouldReturnNotFound() {
         // Arrange
         when(productService.deleteProduct("2")).thenReturn(false);
 
@@ -248,7 +250,7 @@ class ProductControllerTest {
 
     @Test
     @DisplayName("TC-009: Search products - Success")
-    void searchProducts_shouldReturnMatchingProducts() {
+    void TCC_Product_searchProducts_shouldReturnMatchingProducts() {
         // Arrange
         Map<String, Object> searchResults = new HashMap<>();
         searchResults.put("products", Collections.singletonList(testProduct));
@@ -270,7 +272,7 @@ class ProductControllerTest {
 
     @Test
     @DisplayName("TC-010: Handle exception in controller methods")
-    void controllerMethods_whenExceptionOccurs_shouldReturnInternalServerError() {
+    void TCC_Product_controllerMethods_whenExceptionOccurs_shouldReturnInternalServerError() {
         // Arrange
         when(productService.findBySlug("test-laptop")).thenThrow(new RuntimeException("Database error"));
 

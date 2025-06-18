@@ -10,6 +10,7 @@ import com.laptop.ltn.laptop_store_server.entity.Order;
 import com.laptop.ltn.laptop_store_server.entity.OrderProduct;
 import com.laptop.ltn.laptop_store_server.entity.Product;
 import com.laptop.ltn.laptop_store_server.service.OrderService;
+import com.laptop.ltn.laptop_store_server.exception.GlobalExceptionHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,7 +59,7 @@ public class OrderControllerTest {
         }
 
         @Test
-        public void testGetAllOrders_shouldReturnOrders() throws Exception {
+        public void TCC_Order_getAllOrders_shouldReturnOrders() throws Exception {
                 // Tạo dữ liệu mẫu
                 Order order1 = Order.builder()
                                 ._id("order1")
@@ -83,7 +84,7 @@ public class OrderControllerTest {
                 when(orderService.getAllOrders(any(), any(Pageable.class))).thenReturn(orderPage);
 
                 // Thực hiện request GET và kiểm tra
-                mockMvc.perform(get("/order")
+                mockMvc.perform(get("/order/get-all")
                                 .param("page", "0")
                                 .param("size", "10")
                                 .param("sortBy", "createdAt")
@@ -129,7 +130,7 @@ public class OrderControllerTest {
         // }
 
         @Test
-        public void testUpdateOrderProductStatus_shouldUpdateSuccessfully() throws Exception {
+        public void TCC_Order_updateOrderProductStatus_shouldUpdateSuccessfully() throws Exception {
                 // Tạo dữ liệu mẫu
                 String orderId = "order123";
                 String productId = "product123";
@@ -169,7 +170,7 @@ public class OrderControllerTest {
         }
 
         @Test
-        public void testUpdateOrderInfo_shouldUpdateSuccessfully() throws Exception {
+        public void TCC_Order_updateOrderInfo_shouldUpdateSuccessfully() throws Exception {
                 // Tạo dữ liệu mẫu
                 String orderId = "order123";
 
@@ -202,7 +203,7 @@ public class OrderControllerTest {
         }
 
         @Test
-        public void testUpdateOrderProductStatus_withInvalidRequest_shouldReturnBadRequest() throws Exception {
+        public void TCC_Order_updateOrderProductStatus_withInvalidRequest_shouldReturnBadRequest() throws Exception {
                 // Tạo request thiếu orderId
                 UpdateOrderProductStatusRequest request = UpdateOrderProductStatusRequest.builder()
                                 .orderId(null)
@@ -226,7 +227,7 @@ public class OrderControllerTest {
         }
 
         @Test
-        public void testUpdateOrderInfo_withOrderNotFound_shouldReturnBadRequest() throws Exception {
+        public void TCC_Order_updateOrderInfo_withOrderNotFound_shouldReturnBadRequest() throws Exception {
                 String nonExistentOrderId = "nonexistent";
 
                 // Tạo request cập nhật

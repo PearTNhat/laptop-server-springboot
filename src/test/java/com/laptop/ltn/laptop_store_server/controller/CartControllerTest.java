@@ -46,7 +46,7 @@ class CartControllerTest {
 
     @Test
     @DisplayName("TCC-001: Update cart item should return success response")
-    void TCC001_updateCartItem_WithValidRequest_ShouldReturnSuccessResponse() {
+    void TCC_Cart_updateCartItem_withValidRequest_shouldReturnSuccessResponse() {
         // Arrange
         Map<String, Object> request = new HashMap<>();
         request.put("product", "product1");
@@ -60,13 +60,13 @@ class CartControllerTest {
 
         // Assert
         assertNotNull(response);
-        assertEquals("oke", response.getMessage());
+        assertEquals("Cart updated successfully", response.getMessage());
         verify(cartService).updateCartItem("user1", "product1", 3, "Black");
     }
 
     @Test
     @DisplayName("TCC-002: Remove cart item should return updated user")
-    void TCC002_removeCartItem_ShouldReturnUpdatedUser() {
+    void TCC_Cart_removeCartItem_shouldReturnUpdatedUser() {
         // Arrange
         Map<String, Object> request = new HashMap<>();
         request.put("product", "product1");

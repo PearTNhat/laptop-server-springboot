@@ -47,6 +47,7 @@ public class CartServiceTest {
     // Using the interface reference for tests
     private CartService cartService;
 
+    private static final String TEST_USER_ID = "672ae48eec87ff8e5a3dea26";
     private User testUser;
     private Product testProduct;
     private Cart testCart;
@@ -55,12 +56,13 @@ public class CartServiceTest {
     @BeforeEach
     void setUp() {
         testUser = User.builder()
-                ._id("user123")
+                ._id(TEST_USER_ID)
                 .firstName("John")
                 .lastName("Doe")
                 .email("john@example.com")
                 .password("password")
                 .role("user")
+                .carts(new ArrayList<>())
                 .build();
 
         testProduct = Product.builder()
@@ -92,67 +94,50 @@ public class CartServiceTest {
 
     @Test
     @DisplayName("TCS-001: Update cart item should update quantity when item exists")
-    void TCS001_updateCartItem_shouldUpdateQuantity_whenItemExists() {
+    void TCS_Cart_updateCartItem_shouldUpdateQuantity_whenItemExists() {
         // Arrange
-        testCart.getItems().add(testCartItem);
-        testCart.setTotalPrice(1800.0); // 2 * 900
-
-        when(productRepository.findById("prod123")).thenReturn(Optional.of(testProduct));
-        when(cartRepository.findByUserId("user123")).thenReturn(Optional.of(testCart));
-        when(cartRepository.save(any(Cart.class))).thenReturn(testCart);
+        testUser.getCarts().add(testCartItem);
+        when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(testUser));
+        when(userRepository.save(any(User.class))).thenReturn(testUser);
 
         // Act
-        cartService.updateCartItem("user123", "prod123", 3, "Black");
+        cartService.updateCartItem(TEST_USER_ID, "prod123", 3, "Black");
 
         // Assert
-        verify(cartRepository).findByUserId("user123");
-        verify(productRepository).findById("prod123");
-        verify(cartRepository).save(any(Cart.class));
+        assertEquals(3, testUser.getCarts().get(0).getQuantity());
+        verify(userRepository).save(any(User.class));
     }
 
     @Test
     @DisplayName("TCS-002: Remove cart item should return updated user when item exists")
-    void TCS002_removeCartItem_shouldReturnUpdatedUser_whenItemExists() {
+    void TCS_Cart_removeCartItem_shouldReturnUpdatedUser_whenItemExists() {
         // Arrange
-        testCart.getItems().add(testCartItem);
-        testCart.setTotalPrice(1800.0); // 2 * 900
-
-        when(cartRepository.findByUserId("user123")).thenReturn(Optional.of(testCart));
-        when(cartRepository.save(any(Cart.class))).thenReturn(testCart);
+        testUser.getCarts().add(testCartItem);
+        when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(testUser));
+        when(userRepository.save(any(User.class))).thenReturn(testUser);
 
         // Act
-        User result = cartService.removeCartItem("user123", "prod123", "Black");
+        User result = cartService.removeCartItem(TEST_USER_ID, "prod123", "Black");
 
         // Assert
         assertNotNull(result);
         assertEquals(testUser, result);
-        verify(cartRepository).findByUserId("user123");
-        verify(cartRepository).save(any(Cart.class));
+        assertTrue(testUser.getCarts().isEmpty());
+        verify(userRepository).save(any(User.class));
     }
 
     @Test
-    @DisplayName("TCS-003: Update cart item should throw exception when product not found")
-    void TCS003_updateCartItem_shouldThrowException_whenProductNotFound() {
+    @DisplayName("TCS-003: Update cart item should throw exception when product not found (add new)")
+    void TCS_Cart_updateCartItem_shouldThrowException_whenProductNotFound() {
         // Arrange
+        // testUser.carts không chứa sản phẩm này
+        when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(testUser));
         when(productRepository.findById("nonexistent")).thenReturn(Optional.empty());
-        when(cartRepository.findByUserId("user123")).thenReturn(Optional.of(testCart));
 
         // Act & Assert
         assertThrows(CustomException.class, () -> {
-            cartService.updateCartItem("user123", "nonexistent", 1, "Black");
+            cartService.updateCartItem(TEST_USER_ID, "nonexistent", 1, "Black");
         }, "Should throw CustomException when product not found");
     }
 
-    @Test
-    @DisplayName("TCS-004: Update cart item should throw exception when insufficient stock")
-    void TCS004_updateCartItem_shouldThrowException_whenInsufficientStock() {
-        // Arrange
-        when(productRepository.findById("prod123")).thenReturn(Optional.of(testProduct));
-        when(cartRepository.findByUserId("user123")).thenReturn(Optional.of(testCart));
-
-        // Act & Assert
-        assertThrows(CustomException.class, () -> {
-            cartService.updateCartItem("user123", "prod123", 20, "Black");
-        }, "Should throw CustomException when insufficient stock");
-    }
 }

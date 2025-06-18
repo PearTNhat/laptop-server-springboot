@@ -144,7 +144,7 @@ public class CartServiceImpl implements CartService {
 
         Optional<User> optionalUser = userRepository.findById(userId);
         if (optionalUser.isEmpty()) {
-            throw new RuntimeException("User not found");
+            throw new CustomException(ErrorCode.USER_NOT_EXISTED);
         }
 
         User user = optionalUser.get();

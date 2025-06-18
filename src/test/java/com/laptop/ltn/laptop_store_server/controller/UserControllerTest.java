@@ -11,9 +11,6 @@ import com.laptop.ltn.laptop_store_server.service.UserServiceTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -43,7 +40,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
-@ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
 public class UserControllerTest {
     @Autowired
@@ -71,7 +67,7 @@ public class UserControllerTest {
     }
     @Test
     @DisplayName("TCC-001: Get user info should return user info when authenticated")
-    public void TCC001_getUserInfo_shouldReturnUserInfo_whenAuthenticated() throws Exception {
+    public void TCC_User_getUserInfo_shouldReturnUserInfo_whenAuthenticated() throws Exception {
         // Sử dụng Builder để tạo UserResponse
         UserResponse userResponse = UserResponse.builder()
                 ._id("123")
@@ -93,7 +89,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void testGetAllUsers() throws Exception {
+    void TCC_User_getAllUsers_shouldReturnFilteredUsers() throws Exception {
         Map<String, String> queryParams = new HashMap<>();
         queryParams.put("email", "example@example.com");
         User user = User.builder()._id("1").email("example@example.com").build();
@@ -112,7 +108,7 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.data[0].email").value("example@example.com"));
     }
     @Test
-    void testUpdateUser_withAvatar() throws Exception {
+    void TCC_User_updateUser_withAvatar_shouldUpdateUser() throws Exception {
         UserResponse userResponse = UserResponse.builder()
                 ._id("1")
                 .firstName("Updated Name")
@@ -137,7 +133,7 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.data.firstName").value("Updated Name"));
     }
     @Test
-    void testUpdateUser_withoutAvatar_usingBuilder() throws Exception {
+    void TCC_User_updateUser_withoutAvatar_shouldUpdateUser() throws Exception {
         UserResponse userResponse = UserResponse.builder()
                 ._id("1")
                 .firstName("No Avatar Update")
@@ -157,7 +153,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void testUpdateWishlist() throws Exception {
+    void TCC_User_updateWishlist_shouldUpdateWishlist() throws Exception {
         WishListRequest request = WishListRequest.builder()
                 .product("product123")
                 .build();
@@ -173,7 +169,7 @@ public class UserControllerTest {
 
 
     @Test
-    void testUpdateUserByAdmin() throws Exception {
+    void TCC_User_updateUserByAdmin_shouldUpdateUserRole() throws Exception {
         UpdateRoleRequest request = UpdateRoleRequest.builder()
                 .userId("user123")
                 .role("admin")
@@ -189,7 +185,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void testBlockUser() throws Exception {
+    void TCC_User_blockUser_shouldBlockUser() throws Exception {
         UpdateBlockRequest request = UpdateBlockRequest.builder()
                 .userId("user123")
                 .isBlocked(true)

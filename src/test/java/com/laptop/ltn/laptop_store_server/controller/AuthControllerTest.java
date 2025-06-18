@@ -17,11 +17,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,12 +25,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.mockito.Mockito;
 
 import java.time.Instant;
 import java.util.ArrayList;
 
 @SpringBootTest
-@ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
 public class AuthControllerTest {
         @Autowired
@@ -91,7 +86,7 @@ public class AuthControllerTest {
 
         @Test
         @DisplayName("TCC-017: Login successful with valid credentials")
-        void TCC017_login_successful_with_valid_credentials() throws Exception {
+        void TCC_Auth_login_successful_with_valid_credentials() throws Exception {
                 ObjectMapper objectMapper = new ObjectMapper();
                 objectMapper.registerModule(new JavaTimeModule());
                 String content = objectMapper.writeValueAsString(loginRequest);
@@ -118,7 +113,7 @@ public class AuthControllerTest {
 
         @Test
         @DisplayName("TCC-018: Login fails with invalid password")
-        void TCC018_login_fails_with_invalid_password() throws Exception {
+        void TCC_Auth_login_fails_with_invalid_password() throws Exception {
                 ObjectMapper objectMapper = new ObjectMapper();
                 objectMapper.registerModule(new JavaTimeModule());
                 String content = objectMapper.writeValueAsString(loginRequest);
@@ -135,7 +130,7 @@ public class AuthControllerTest {
 
         @Test
         @DisplayName("TCC-019: Login fails when account is blocked")
-        void TCC019_login_fails_when_account_is_blocked() throws Exception {
+        void TCC_Auth_login_fails_when_account_is_blocked() throws Exception {
                 ObjectMapper objectMapper = new ObjectMapper();
                 objectMapper.registerModule(new JavaTimeModule());
                 String content = objectMapper.writeValueAsString(loginRequest);
@@ -155,7 +150,7 @@ public class AuthControllerTest {
 
         @Test
         @DisplayName("TCC-020: Login fails when email is missing")
-        void TCC020_login_fails_when_email_is_missing() throws Exception {
+        void TCC_Auth_login_fails_when_email_is_missing() throws Exception {
                 LoginRequest invalidRequest = LoginRequest.builder()
                                 .password("123456")
                                 .build();
@@ -174,7 +169,7 @@ public class AuthControllerTest {
 
         @Test
         @DisplayName("TCC-021: Login fails when password is missing")
-        void TCC021_login_fails_when_password_is_missing() throws Exception {
+        void TCC_Auth_login_fails_when_password_is_missing() throws Exception {
                 LoginRequest invalidRequest = LoginRequest.builder()
                                 .email("abc@gmail.com")
                                 .build();
@@ -193,7 +188,7 @@ public class AuthControllerTest {
 
         @Test
         @DisplayName("TCC-022: Register successful with valid information")
-        void TCC022_register_successful_with_valid_information() throws Exception {
+        void TCC_Auth_register_successful_with_valid_information() throws Exception {
                 ObjectMapper objectMapper = new ObjectMapper();
                 objectMapper.registerModule(new JavaTimeModule());
                 String content = objectMapper.writeValueAsString(registerRequest);
@@ -216,7 +211,7 @@ public class AuthControllerTest {
 
         @Test
         @DisplayName("TCC-023: Register fails when email sending fails")
-        void TCC023_register_fails_when_email_sending_fails() throws Exception {
+        void TCC_Auth_register_fails_when_email_sending_fails() throws Exception {
                 ObjectMapper objectMapper = new ObjectMapper();
                 String content = objectMapper.writeValueAsString(registerRequest);
 
@@ -234,7 +229,7 @@ public class AuthControllerTest {
 
         @Test
         @DisplayName("TCC-024: Register fails when email is missing")
-        void TCC024_register_fails_when_email_is_missing() throws Exception {
+        void TCC_Auth_register_fails_when_email_is_missing() throws Exception {
                 RegisterRequest registerRequest = RegisterRequest.builder()
                                 .firstName("John")
                                 .lastName("Doe")
@@ -253,7 +248,7 @@ public class AuthControllerTest {
 
         @Test
         @DisplayName("TCC-025: Register fails when firstName is missing")
-        void TCC025_register_fails_when_firstName_is_missing() throws Exception {
+        void TCC_Auth_register_fails_when_firstName_is_missing() throws Exception {
                 RegisterRequest registerRequest = RegisterRequest.builder()
                                 .email("test@example.com")
                                 .lastName("Doe")
@@ -272,7 +267,7 @@ public class AuthControllerTest {
 
         @Test
         @DisplayName("TCC-026: Register fails when lastName is missing")
-        void TCC026_register_fails_when_lastName_is_missing() throws Exception {
+        void TCC_Auth_register_fails_when_lastName_is_missing() throws Exception {
                 RegisterRequest registerRequest = RegisterRequest.builder()
                                 .email("test@example.com")
                                 .firstName("John")
@@ -291,7 +286,7 @@ public class AuthControllerTest {
 
         @Test
         @DisplayName("TCC-027: Register fails when password is missing")
-        void TCC027_register_fails_when_password_is_missing() throws Exception {
+        void TCC_Auth_register_fails_when_password_is_missing() throws Exception {
                 RegisterRequest registerRequest = RegisterRequest.builder()
                                 .email("test@example.com")
                                 .firstName("John")
@@ -310,7 +305,7 @@ public class AuthControllerTest {
 
         @Test
         @DisplayName("TCC-028: Register fails when password is too short")
-        void TCC028_register_fails_when_password_is_too_short() throws Exception {
+        void TCC_Auth_register_fails_when_password_is_too_short() throws Exception {
                 RegisterRequest registerRequest = RegisterRequest.builder()
                                 .email("test@example.com")
                                 .firstName("John")
@@ -331,7 +326,7 @@ public class AuthControllerTest {
 
         @Test
         @DisplayName("TCC-029: Final registration successful with valid information")
-        void TCC029_final_registration_successful_with_valid_information() throws Exception {
+        void TCC_Auth_final_registration_successful_with_valid_information() throws Exception {
                 ObjectMapper objectMapper = new ObjectMapper();
                 String content = objectMapper.writeValueAsString(finalRegisterRequest);
                 // given
@@ -356,7 +351,7 @@ public class AuthControllerTest {
 
         @Test
         @DisplayName("TCC-030: Final registration fails when email is missing")
-        void TCC030_final_registration_fails_when_email_is_missing() throws Exception {
+        void TCC_Auth_final_registration_fails_when_email_is_missing() throws Exception {
                 FinalRegisterRequest request = FinalRegisterRequest.builder()
                                 .otp("123456")
                                 .build(); // Không có email
@@ -373,7 +368,7 @@ public class AuthControllerTest {
 
         @Test
         @DisplayName("TCC-031: Final registration fails when OTP is missing")
-        void TCC031_final_registration_fails_when_OTP_is_missing() throws Exception {
+        void TCC_Auth_final_registration_fails_when_OTP_is_missing() throws Exception {
                 FinalRegisterRequest request = FinalRegisterRequest.builder()
                                 .email("test@example.com")
                                 .build(); // Không có OTP
@@ -390,7 +385,7 @@ public class AuthControllerTest {
 
         @Test
         @DisplayName("TCC-032: Final registration fails when OTP length is less than required")
-        void TCC032_final_registration_fails_when_OTP_length_is_less_than_required() throws Exception {
+        void TCC_Auth_final_registration_fails_when_OTP_length_is_less_than_required() throws Exception {
                 FinalRegisterRequest request = FinalRegisterRequest.builder()
                                 .email("test@example.com")
                                 .otp("12345") // OTP chỉ có 6 ký tự
@@ -409,7 +404,7 @@ public class AuthControllerTest {
 
         @Test
         @DisplayName("TCC-033: Final registration fails when OTP length exceeds required length")
-        void TCC033_final_registration_fails_when_OTP_length_exceeds_required_length() throws Exception {
+        void TCC_Auth_final_registration_fails_when_OTP_length_exceeds_required_length() throws Exception {
                 FinalRegisterRequest request = FinalRegisterRequest.builder()
                                 .email("test@example.com")
                                 .otp("123457999") // OTP có 7 ký tự

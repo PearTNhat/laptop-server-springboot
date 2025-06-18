@@ -289,6 +289,7 @@ public class ProductServiceImpl implements ProductService {
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
         response.put("counts", total);
+        response.put("totalItems", total);
         response.put("data", products);
 
         return response;

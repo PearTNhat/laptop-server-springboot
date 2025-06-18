@@ -20,4 +20,8 @@ public class OrderProduct {
 
     // -1: Cancelled, 0: Pending, 1: Confirmed
     private Integer status = 0;
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
 }

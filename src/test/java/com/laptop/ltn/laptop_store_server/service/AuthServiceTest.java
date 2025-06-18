@@ -89,7 +89,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    void login_shouldReturnLoginResponse_whenCredentialsAreValid() {
+    void TCS_Auth_login_shouldReturnLoginResponse_whenCredentialsAreValid() {
         // Arrange
         when(userRepository.findByEmail(loginRequest.getEmail())).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(loginRequest.getPassword(), user.getPassword()))
@@ -107,7 +107,7 @@ public class AuthServiceTest {
         assertEquals(userResponse, loginResponse.getUserData());
     }
     @Test
-    void login_shouldThrowException_whenEmailIsInvalid() {
+    void TCS_Auth_login_shouldThrowException_whenEmailIsInvalid() {
         // Arrange
         when(userRepository.findByEmail(loginRequest.getEmail()))
                 .thenReturn(Optional.empty());
@@ -119,7 +119,7 @@ public class AuthServiceTest {
         assertEquals(ErrorCode.UNAUTHENTICATED, exception.getErrorCode());
     }
     @Test
-    void login_shouldThrowException_whenPasswordIsIncorrect() {
+    void TCS_Auth_login_shouldThrowException_whenPasswordIsIncorrect() {
         // Arrange
         when(userRepository.findByEmail(loginRequest.getEmail()))
                 .thenReturn(Optional.of(user));
@@ -133,7 +133,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    void register_ShouldThrowException_WhenUserExists() {
+    void TCS_Auth_register_ShouldThrowException_WhenUserExists() {
         RegisterRequest request = RegisterRequest.builder()
                 .email("test@example.com")
                 .firstName("John")
@@ -146,7 +146,7 @@ public class AuthServiceTest {
         assertEquals(ErrorCode.USER_EXISTED, exception.getErrorCode());
     }
     @Test
-    void register_ShouldCreateNewUserAndSendEmail_WhenUserNotExists() {
+    void TCS_Auth_register_ShouldCreateNewUserAndSendEmail_WhenUserNotExists() {
         RegisterRequest request = RegisterRequest.builder()
                 .email("test@example.com")
                 .firstName("John")
@@ -168,7 +168,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    void finalRegister_ShouldUpdateEmail_WhenOtpIsCorrect() {
+    void TCS_Auth_finalRegister_ShouldUpdateEmail_WhenOtpIsCorrect() {
         FinalRegisterRequest request = FinalRegisterRequest.builder()
                 .email("test@example.com")
                 .otp("123456")
@@ -187,7 +187,7 @@ public class AuthServiceTest {
         verify(userRepository).save(user);
     }
     @Test
-    void finalRegister_ShouldThrowException_WhenOtpIsInvalidLength() {
+    void TCS_Auth_finalRegister_ShouldThrowException_WhenOtpIsInvalidLength() {
         FinalRegisterRequest request = FinalRegisterRequest.builder()
                 .email("test@example.com")
                 .otp("123") // OTP ngắn hơn 6 ký tự

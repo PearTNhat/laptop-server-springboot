@@ -92,7 +92,7 @@ public class OrderServiceTest {
         }
 
         @Test
-        void testCreateOrder_success() {
+        void TCS_Order_createOrder_success() {
                 // Fake dữ liệu
                 OrderRequest orderRequest = OrderRequest.builder()
                                 .name("Test User")
@@ -132,7 +132,7 @@ public class OrderServiceTest {
         }
 
         @Test
-        void testTransactionStatus_success() throws JsonProcessingException {
+        void TCS_Order_transactionStatus_success() throws JsonProcessingException {
                 String orderId = "order123";
                 // Set urlCheckTransaction để tránh lỗi uri(null)
                 ReflectionTestUtils.setField(orderService, "urlCheckTransaction",
@@ -191,7 +191,7 @@ public class OrderServiceTest {
         }
 
         @Test
-        void testDeleteOrder_withNullOrderId_shouldThrowException() {
+        void TCS_Order_deleteOrder_withNullOrderId_shouldThrowException() {
                 Exception exception = assertThrows(IllegalArgumentException.class,
                                 () -> orderService.deleteOrder(null));
                 assertEquals("Missing input", exception.getMessage());
@@ -199,14 +199,14 @@ public class OrderServiceTest {
         }
 
         @Test
-        void testDeleteOrder_withBlankOrderId_shouldThrowException() {
+        void TCS_Order_deleteOrder_withBlankOrderId_shouldThrowException() {
                 Exception exception = assertThrows(IllegalArgumentException.class, () -> orderService.deleteOrder(" "));
                 assertEquals("Missing input", exception.getMessage());
                 verify(orderRepository, never()).deleteById(any());
         }
 
         @Test
-        void testGetAllOrders_shouldReturnAllOrders() {
+        void TCS_Order_getAllOrders_shouldReturnAllOrders() {
                 // Create a spy to have more control
                 OrderImpl spyOrderService = spy(orderService);
 
@@ -229,7 +229,7 @@ public class OrderServiceTest {
         }
 
         @Test
-        void testGetAllOrders_forUser_shouldReturnUserOrders() {
+        void TCS_Order_getAllOrders_forUser_shouldReturnUserOrders() {
                 // Set up user
                 User normalUser = User.builder()._id("user123").role("user").build();
                 when(userRepository.findById("user123")).thenReturn(Optional.of(normalUser));
@@ -258,7 +258,7 @@ public class OrderServiceTest {
         }
 
         @Test
-        void testGetAllOrders_withSpecificUserId_shouldReturnUserOrders() {
+        void TCS_Order_getAllOrders_withSpecificUserId_shouldReturnUserOrders() {
                 // Setup target user
                 User targetUser = User.builder()._id("target123").role("user").build();
                 // Use lenient() to avoid UnnecessaryStubbingException
@@ -286,7 +286,7 @@ public class OrderServiceTest {
         }
 
         @Test
-        void testGetAllOrders_nonAdminTryingToAccessAll_shouldThrowException() {
+        void TCS_Order_getAllOrders_nonAdminTryingToAccessAll_shouldThrowException() {
                 // Create a spy of orderService
                 OrderImpl spyOrderService = spy(orderService);
                 
@@ -304,7 +304,7 @@ public class OrderServiceTest {
         }
 
         @Test
-        void testUpdateOrderProductStatus_validRequest_shouldUpdateStatus() {
+        void TCS_Order_updateOrderProductStatus_validRequest_shouldUpdateStatus() {
                 // Set up test data
                 String orderId = "order123";
                 String productId = "product123";
@@ -342,7 +342,7 @@ public class OrderServiceTest {
         }
 
         @Test
-        void testUpdateOrderProductStatus_missingOrderId_shouldThrowException() {
+        void TCS_Order_updateOrderProductStatus_missingOrderId_shouldThrowException() {
                 UpdateOrderProductStatusRequest request = UpdateOrderProductStatusRequest.builder()
                                 .orderId(null)
                                 .productId("product123")
@@ -353,7 +353,7 @@ public class OrderServiceTest {
         }
 
         @Test
-        void testUpdateOrderProductStatus_invalidStatus_shouldThrowException() {
+        void TCS_Order_updateOrderProductStatus_invalidStatus_shouldThrowException() {
                 UpdateOrderProductStatusRequest request = UpdateOrderProductStatusRequest.builder()
                                 .orderId("order123")
                                 .productId("product123")
@@ -364,7 +364,7 @@ public class OrderServiceTest {
         }
 
         @Test
-        void testUpdateOrderProductStatus_productNotInOrder_shouldThrowException() {
+        void TCS_Order_updateOrderProductStatus_productNotInOrder_shouldThrowException() {
                 // Set up test data
                 String orderId = "order123";
                 String productId = "product123";
@@ -374,9 +374,9 @@ public class OrderServiceTest {
                 Product product = Product.builder()._id(productId).build();
                 OrderProduct orderProduct = OrderProduct.builder()
                                 .product(product)
-                                .quantity(1)
                                 .status(0)
                                 .build();
+                orderProduct.setQuantity(1);
 
                 Order order = Order.builder()
                                 ._id(orderId)
@@ -397,7 +397,7 @@ public class OrderServiceTest {
         }
 
         @Test
-        void testUpdateOrderInfo_validRequest_shouldUpdateInfo() {
+        void TCS_Order_updateOrderInfo_validRequest_shouldUpdateInfo() {
                 // Set up test data
                 String orderId = "order123";
                 Order order = Order.builder()
@@ -429,7 +429,7 @@ public class OrderServiceTest {
         }
 
         @Test
-        void testUpdateOrderInfo_nullOrderId_shouldThrowException() {
+        void TCS_Order_updateOrderInfo_nullOrderId_shouldThrowException() {
                 UpdateOrderInfoRequest request = UpdateOrderInfoRequest.builder()
                                 .name("New Name")
                                 .build();
@@ -438,7 +438,7 @@ public class OrderServiceTest {
         }
 
         @Test
-        void testUpdateOrderInfo_orderNotFound_shouldThrowException() {
+        void TCS_Order_updateOrderInfo_orderNotFound_shouldThrowException() {
                 String orderId = "nonexistent";
                 when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
 

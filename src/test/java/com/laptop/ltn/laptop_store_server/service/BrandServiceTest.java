@@ -43,7 +43,7 @@ class BrandServiceTest {
 
     @Test
     @DisplayName("TCS-021: Get all brands should return all brands")
-    void TCS021_getAllBrands_ShouldReturnAllBrands() {
+    void TCS_Brand_getAllBrands_shouldReturnAllBrands() {
         // Arrange
         List<Brand> expectedBrands = Arrays.asList(testBrand);
         when(brandRepository.findAll()).thenReturn(expectedBrands);
@@ -58,7 +58,7 @@ class BrandServiceTest {
 
     @Test
     @DisplayName("TCS-022: Create brand should set timestamps and save")
-    void TCS022_createBrand_ShouldSetTimestampsAndSave() {
+    void TCS_Brand_createBrand_shouldSetTimestampsAndSave() {
         // Arrange
         Brand newBrand = new Brand();
         newBrand.setTitle("New Brand");
@@ -76,7 +76,7 @@ class BrandServiceTest {
 
     @Test
     @DisplayName("TCS-023: Update brand when brand exists should update and return brand")
-    void TCS023_updateBrand_WhenBrandExists_ShouldUpdateAndReturnBrand() {
+    void TCS_Brand_updateBrand_whenBrandExists_shouldUpdateAndReturnBrand() {
         // Arrange
         Brand updatedBrand = new Brand();
         updatedBrand.setTitle("Updated Brand");
@@ -95,7 +95,7 @@ class BrandServiceTest {
 
     @Test
     @DisplayName("TCS-024: Update brand when brand does not exist should return empty")
-    void TCS024_updateBrand_WhenBrandDoesNotExist_ShouldReturnEmpty() {
+    void TCS_Brand_updateBrand_whenBrandDoesNotExist_shouldReturnEmpty() {
         // Arrange
         Brand updatedBrand = new Brand();
         when(brandRepository.findById("2")).thenReturn(Optional.empty());
@@ -111,7 +111,7 @@ class BrandServiceTest {
 
     @Test
     @DisplayName("TCS-025: Delete brand when brand exists should return true")
-    void TCS025_deleteBrand_WhenBrandExists_ShouldReturnTrue() {
+    void TCS_Brand_deleteBrand_whenBrandExists_shouldReturnTrue() {
         // Arrange
         when(brandRepository.existsById("1")).thenReturn(true);
 
@@ -126,7 +126,7 @@ class BrandServiceTest {
 
     @Test
     @DisplayName("TCS-026: Delete brand when brand does not exist should return false")
-    void TCS026_deleteBrand_WhenBrandDoesNotExist_ShouldReturnFalse() {
+    void TCS_Brand_deleteBrand_whenBrandDoesNotExist_shouldReturnFalse() {
         // Arrange
         when(brandRepository.existsById("2")).thenReturn(false);
 

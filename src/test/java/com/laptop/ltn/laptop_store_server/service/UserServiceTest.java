@@ -88,7 +88,7 @@ public class UserServiceTest {
 
     }
     @Test
-    void getUserInfo_ShouldReturnUserResponse_WhenUserExists() {
+    void TCS_User_getUserInfo_ShouldReturnUserResponse_WhenUserExists() {
         when(userRepository.findById("123")).thenReturn(Optional.of(user));
         when(userMapper.toUserResponse(user)).thenReturn(userResponse);
 
@@ -99,7 +99,7 @@ public class UserServiceTest {
         verify(userMapper).toUserResponse(user);
     }
     @Test
-    void getUserInfo_ShouldThrowException_WhenUserNotFound() {
+    void TCS_User_getUserInfo_ShouldThrowException_WhenUserNotFound() {
         when(userRepository.findById("123")).thenReturn(Optional.empty());
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.getUserInfo());
@@ -107,7 +107,7 @@ public class UserServiceTest {
         assertEquals(ErrorCode.USER_NOT_EXISTED.getMessage(), exception.getMessage());
     }
     @Test
-    void findAllWithFilters_ShouldReturnFilteredPage() {
+    void TCS_User_findAllWithFilters_ShouldReturnFilteredPage() {
         Map<String, String> queryParams = Map.of("firstName", "John");
         Pageable pageable = PageRequest.of(0, 10);
         User user = User.builder().firstName("John").build();
@@ -122,7 +122,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void updateUser_ShouldUpdateFields_WhenValidRequestWithoutImage() throws Exception {
+    void TCS_User_updateUser_ShouldUpdateFields_WhenValidRequestWithoutImage() throws Exception {
         UserUpdateRequest request = UserUpdateRequest.builder()
                 .firstName("Johnny")
                 .lastName("Bravo")
@@ -144,14 +144,14 @@ public class UserServiceTest {
         verify(userRepository).save(any());
     }
     @Test
-    void updateWishlist_shouldThrowException_whenProductIdIsNull() {
+    void TCS_User_updateWishlist_shouldThrowException_whenProductIdIsNull() {
         WishListRequest request = WishListRequest.builder().product(null).build();
 
         assertThrows(IllegalArgumentException.class, () -> userService.updateWishlist(request));
     }
 
     @Test
-    void updateWishlist_shouldRemoveProductIfExists() {
+    void TCS_User_updateWishlist_shouldRemoveProductIfExists() {
         String productId = "product123";
         WishListRequest request = WishListRequest.builder().product(productId).build();
 
@@ -171,7 +171,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void updateWishlist_shouldAddProductIfNotExists() {
+    void TCS_User_updateWishlist_shouldAddProductIfNotExists() {
         String productId = "product123";
         WishListRequest request = WishListRequest.builder().product(productId).build();
 
@@ -190,13 +190,13 @@ public class UserServiceTest {
         verify(userRepository).save(user);
     }
     @Test
-    void updateRole_shouldThrow_whenRoleOrUserIdMissing() {
+    void TCS_User_updateRole_shouldThrow_whenRoleOrUserIdMissing() {
         assertThrows(IllegalArgumentException.class,
                 () -> userService.updateRole(UpdateRoleRequest.builder().role("admin").build()));
     }
 
     @Test
-    void updateRole_shouldThrow_whenInvalidRole() {
+    void TCS_User_updateRole_shouldThrow_whenInvalidRole() {
         UpdateRoleRequest request = UpdateRoleRequest.builder()
                 .userId("targetId")
                 .role("admin")
@@ -206,7 +206,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void updateRole_shouldThrow_whenCurrentUserIsNotAdmin() {
+    void TCS_User_updateRole_shouldThrow_whenCurrentUserIsNotAdmin() {
         User currentUser = new User();
         currentUser.setRole("user");
 
@@ -221,7 +221,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void updateRole_shouldUpdateSuccessfully() {
+    void TCS_User_updateRole_shouldUpdateSuccessfully() {
         User currentUser = new User();
         currentUser.set_id("123");
         currentUser.setRole("admin");
@@ -244,21 +244,21 @@ public class UserServiceTest {
     }
 
     @Test
-    void updateBlock_shouldThrow_whenUserIdMissing() {
+    void TCS_User_updateBlock_shouldThrow_whenUserIdMissing() {
         UpdateBlockRequest request = UpdateBlockRequest.builder().userId(null).isBlocked(true).build();
 
         assertThrows(IllegalArgumentException.class, () -> userService.updateBlock(request));
     }
 
     @Test
-    void updateBlock_shouldThrow_whenIsBlockedNull() {
+    void TCS_User_updateBlock_shouldThrow_whenIsBlockedNull() {
         UpdateBlockRequest request = UpdateBlockRequest.builder().userId("targetId").isBlocked(null).build();
 
         assertThrows(IllegalArgumentException.class, () -> userService.updateBlock(request));
     }
 
     @Test
-    void updateBlock_shouldThrow_whenNotAdmin() {
+    void TCS_User_updateBlock_shouldThrow_whenNotAdmin() {
         User currentUser = new User();
         currentUser.setRole("user");
 
@@ -273,7 +273,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void updateBlock_shouldUpdateSuccessfully() {
+    void TCS_User_updateBlock_shouldUpdateSuccessfully() {
         User currentUser = new User();
         currentUser.setRole("admin");
 
